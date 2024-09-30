@@ -135,7 +135,7 @@
   
     try {
       await registerUser(payload);
-      router.push('/login');
+      router.push('/');
     } catch (err) {
       error.value = err.response?.data?.message || 'Registration failed.';
     }
