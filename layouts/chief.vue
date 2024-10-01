@@ -1,17 +1,17 @@
-<!-- layouts/admin.vue -->
+<!-- layouts/chief.vue -->
 <template>
     <div class="min-h-screen flex">
       <!-- Sidebar -->
       <aside class="w-64 bg-gray-800 text-white min-h-screen fixed">
         <div class="p-6">
-          <h2 class="text-xl font-bold mb-8">Admin Dashboard</h2>
+          <h2 class="text-xl font-bold mb-8">Chief Dashboard</h2>
           <nav>
             <ul>
               <li class="mb-4">
-                <NuxtLink to="/admin" class="hover:bg-gray-700 block p-2 rounded">Dashboard</NuxtLink>
+                <NuxtLink to="/chief" class="hover:bg-gray-700 block p-2 rounded">Dashboard</NuxtLink>
               </li>
               <li class="mb-4">
-                <NuxtLink to="/admin/users" class="hover:bg-gray-700 block p-2 rounded">Users</NuxtLink>
+                <NuxtLink to="/chief/tasks" class="hover:bg-gray-700 block p-2 rounded">Tasks</NuxtLink>
               </li>
               <!-- Add more links as needed -->
             </ul>
@@ -40,6 +40,6 @@ const handleLogout = async () => {
 </script>
   
   <style scoped>
-  /* Styling for the admin layout can be customized here */
+  /* Styling for the chief layout can be customized here */
   </style>
   
