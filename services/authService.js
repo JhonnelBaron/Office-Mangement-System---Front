@@ -46,7 +46,7 @@ export const registerUser = async (userData) => {
     const { $api } = useNuxtApp();
   
     try {
-      await $api.post('/logout'); // Call the logout endpoint
+      await $api.post('api/logout'); // Call the logout endpoint
   
       // Clear the token and user data from localStorage
       localStorage.removeItem('auth_token');

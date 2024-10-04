@@ -8,7 +8,8 @@
 
 <script setup>
     definePageMeta({
-        layout: 'employee'
+        layout: 'employee',
+
     })
 </script>
 
