@@ -22,7 +22,8 @@ export const useAuth = () => {
             // Store the token in localStorage
             if (response.data.access_token) {
                 localStorage.setItem('auth_token', response.data.access_token);
-
+                const now = new Date().toLocaleTimeString(); // Get the current time
+                localStorage.setItem('timeIn', now); // Store the time in localStorage
                 // Redirect based on user type
                 router.push(response.data.redirect_to);
             }
