@@ -21,9 +21,16 @@
                     </a>
                   </p>
                   <br>
-                  <p>Added: {{ formatDate(task.dateAdded) }}</p>
-                  <p v-if="task.timeDone">Done: {{ formatDate(task.timeDone) }}</p>
-                  <p v-if="task.hoursWorked">Hours Worked: {{ task.hoursWorked }} hours</p>
+                  <!-- <p>Added: {{ formatDate(task.dateAdded) }}</p> -->
+                  <p>Added: {{ formatDate(task.date_added) }}</p>
+                  <p v-if="task.date_finished">Done: {{ formatDate(task.date_finished) }}</p>
+                  <p v-if="task.hours_worked">  Hours Worked: 
+                  <span v-if="Math.floor(task.hours_worked) > 0">
+                    {{ Math.floor(task.hours_worked) }} hour<span v-if="Math.floor(task.hours_worked) > 1">s</span> 
+                  </span>
+                  <span>
+                    {{ ' ' + ((task.hours_worked - Math.floor(task.hours_worked)) * 60).toFixed(0) }} minutes
+                  </span></p>
                 </div>
               </div>
   
@@ -84,6 +91,8 @@
   
   <script setup>
   import { ref } from 'vue';
+  import { updateTask as updateTaskService } from '@/services/taskService';
+
   
   // Props to receive tasks data
   const props = defineProps({
@@ -98,10 +107,23 @@
   const editedTask = ref({});
   
   // Utility function to format dates
+  // const formatDate = (dateString) => {
+  //   const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+  //   return new Date(dateString).toLocaleDateString(undefined, options);
+  // };
   const formatDate = (dateString) => {
-    const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-    return new Date(dateString).toLocaleDateString(undefined, options);
-  };
+  if (!dateString) return 'Invalid Date'; // Return early if the dateString is missing or invalid
+  
+  // Handle cases where dateString may include time
+  const date = new Date(dateString);
+  
+  // Check if the date is valid
+  if (isNaN(date)) return 'Invalid Date';
+  
+  const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+  return date.toLocaleDateString(undefined, options);
+};
+
   
   // Function to shorten the link
   const shortenLink = (link) => {
@@ -116,13 +138,28 @@
   };
   
   // Function to update a task
-  const updateTask = () => {
+  // const updateTask = () => {
+  //   const index = props.tasks.findIndex(task => task.id === editedTask.value.id);
+  //   if (index !== -1) {
+  //     props.tasks[index] = { ...editedTask.value }; // Update the task in the original array
+  //   }
+  //   closeEditModal(); // Close the edit modal
+  // };
+  const updateTask = async () => {
+  try {
+    await updateTaskService(editedTask.value.id, editedTask.value); // Update task using the service
+
+    // Update the task locally after a successful API response
     const index = props.tasks.findIndex(task => task.id === editedTask.value.id);
     if (index !== -1) {
       props.tasks[index] = { ...editedTask.value }; // Update the task in the original array
     }
+
     closeEditModal(); // Close the edit modal
-  };
+  } catch (error) {
+    console.error("Failed to update the task:", error);
+  }
+};
   
   // Function to close the edit modal
   const closeEditModal = () => {
