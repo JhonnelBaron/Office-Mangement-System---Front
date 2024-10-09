@@ -38,7 +38,7 @@
     </div>
 
     <!-- Task List -->
-    <TaskList :tasks="filteredTasks" />
+    <TaskList :tasks="filteredTasks" @updateTasks="handleTaskUpdate" />
 
     <!-- "Print Accomplishment Report" Link -->
     <div class="mt-8">
@@ -77,7 +77,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import TaskList from '@/components/TaskList.vue';
 import { addTask as addTaskService, getTasks } from '@/services/taskService';
 
@@ -103,15 +103,41 @@ const selectedCutoff = ref('cutoff1');
 const last7Days = ref(generateLast7Days());
 
 // Fetch tasks on component mount
+// onMounted(async () => {
+//   try {
+//     const tasks = await getTasks();
+//     console.log('Fetched tasks:', tasks); 
+//     taskData.value = tasks;
+//     filteredTasks.value = tasks;
+//   } catch (error) {
+//     console.error('Error fetching tasks:', error);
+//   }
+// });
 onMounted(async () => {
+  await fetchTasks();
+  // Start polling for new tasks
+  onUnmounted(() => clearInterval(intervalId)); // Clear interval on component unmount
+});
+
+// Function to fetch tasks
+const fetchTasks = async () => {
   try {
     const tasks = await getTasks();
+    console.log('Fetched tasks:', tasks); 
     taskData.value = tasks;
     filteredTasks.value = tasks;
   } catch (error) {
     console.error('Error fetching tasks:', error);
   }
-});
+};
+
+const handleTaskUpdate = async (updatedTask) => {
+  console.log("Updated Task:", updatedTask);
+  
+  // Optionally, update the task list locally or re-fetch tasks
+  await fetchTasks();
+};
+
 
 // Function to open the modal
 const openModal = () => {
@@ -138,6 +164,7 @@ const addTask = async () => {
     const newTask = await addTaskService(task);
     taskData.value.push(newTask);
     filteredTasks.value.push(newTask);
+    await fetchTasks(); 
     closeModal();
   } catch (error) {
     console.error('Error adding task:', error);
@@ -168,7 +195,7 @@ const formatDate = (dateString) => {
 const filterTasks = (filterType) => {
   const today = new Date(selectedTodayDate.value);
   filteredTasks.value = taskData.value.filter((task) => {
-    const taskDate = new Date(task.dateAdded);
+    const taskDate = new Date(task.date_added);
     if (filterType === 'today') {
       return taskDate.toDateString() === today.toDateString();
     } else if (filterType === 'cutoff') {

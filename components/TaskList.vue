@@ -103,14 +103,11 @@
   });
   
   // State for showing the edit modal
+  const emit = defineEmits(['updateTasks']);
   const showEditModal = ref(false);
   const editedTask = ref({});
   
   // Utility function to format dates
-  // const formatDate = (dateString) => {
-  //   const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-  //   return new Date(dateString).toLocaleDateString(undefined, options);
-  // };
   const formatDate = (dateString) => {
   if (!dateString) return 'Invalid Date'; // Return early if the dateString is missing or invalid
   
@@ -138,22 +135,12 @@
   };
   
   // Function to update a task
-  // const updateTask = () => {
-  //   const index = props.tasks.findIndex(task => task.id === editedTask.value.id);
-  //   if (index !== -1) {
-  //     props.tasks[index] = { ...editedTask.value }; // Update the task in the original array
-  //   }
-  //   closeEditModal(); // Close the edit modal
-  // };
   const updateTask = async () => {
   try {
     await updateTaskService(editedTask.value.id, editedTask.value); // Update task using the service
 
     // Update the task locally after a successful API response
-    const index = props.tasks.findIndex(task => task.id === editedTask.value.id);
-    if (index !== -1) {
-      props.tasks[index] = { ...editedTask.value }; // Update the task in the original array
-    }
+    emit('updateTasks', editedTask.value); // Emit the updated task
 
     closeEditModal(); // Close the edit modal
   } catch (error) {
