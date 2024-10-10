@@ -54,7 +54,7 @@ export const registerUser = async (userData) => {
     const { $api } = useNuxtApp();
   
     try {
-      const response = await $api.post('api/register', userData); // Adjust the endpoint as necessary
+      const response = await $api.post('/register', userData); // Adjust the endpoint as necessary
       return response.data; // Return the response data for further processing
     } catch (error) {
       throw error.response.data.message || 'Registration failed';
@@ -65,7 +65,7 @@ export const registerUser = async (userData) => {
     const { $api } = useNuxtApp();
   
     try {
-      await $api.post('api/logout'); // Call the logout endpoint
+      await $api.post('/logout'); // Call the logout endpoint
   
       // Clear the token and user data from localStorage
       localStorage.removeItem('auth_token');

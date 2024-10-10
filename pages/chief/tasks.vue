@@ -3,9 +3,9 @@
       <h2 class="text-2xl font-bold mb-4">User Task Overview</h2>
   
       <!-- Display today's date -->
-      <div class="mb-4">
-        <strong>Date Today: </strong>{{ currentDate }}
-      </div>
+      <!-- <div class="mb-4 text-right text-sm font-medium text-gray-600">
+        <strong>Date Today: </strong>{{ formatDate(new Date()) }}
+      </div> -->
   
       <!-- Container for Date Filter and Add Task Link -->
       <div class="mb-4 flex items-center justify-between">
@@ -31,14 +31,17 @@
       />
     </div>
   </div>
-
+  
+  <div class="mb-4 text-right text-sm font-medium text-gray-600">
+        <strong>Date Today: </strong>{{ formatDate(new Date()) }}
+      </div>
   <!-- Text link to open modal for adding a task -->
-  <span
+  <!-- <span
     @click="showModal = true"
     class="cursor-pointer text-blue-600 underline mb-4 ml-4"
   >
     <i class="fas fa-plus"></i> + Assign Task
-  </span>
+  </span> -->
 </div>
 
   
@@ -59,11 +62,14 @@
                 <li v-for="task in filteredTasks(user.tasks, filterDate)" :key="task.id">
                 <div>
                   <strong>{{ task.title }}</strong> -
-                  <span>{{ task.completed ? '✔ Completed' : '✦ In Progress' }}</span>
+                  <span>{{ task.done ? '✔ Done' : '✦ In Progress' }}</span>
                 </div>
                 <div class="flex justify-between items-center">
                   <p class="text-gray-600">Description: {{ task.description }}</p>
-                  <p v-if="task.completed" class="text-gray-500 inline">Hours: {{ task.hours }}</p>
+                  <p v-if="task.done" class="text-gray-500 inline">Hours: {{ task.hours }}</p>
+                  <p v-if="task.link" class="text-blue-600">
+                    <a :href="task.link" target="_blank">View Document</a>
+                  </p>
                 </div>
                 </li>
                 <li v-if="filteredTasks(user.tasks, filterDate).length === 0" class="text-gray-500">No tasks for this date.</li>
@@ -102,6 +108,7 @@
   
   <script setup>
   import { ref, watch, computed } from 'vue';
+  import { getTasks } from '@/services/chief/taskService';
   
   // Define page metadata
   definePageMeta({
@@ -110,6 +117,10 @@
   
   // Current date
   const currentDate = new Date().toLocaleDateString('en-CA'); // Ensure correct format (YYYY-MM-DD)
+  const formatDate = (dateString) => {
+  const options = { year: 'numeric', month: 'long', day: 'numeric' };
+  return new Date(dateString).toLocaleDateString(undefined, options);
+};
   
   // Date filter
   const filterDate = ref(currentDate); // Default to today
@@ -117,46 +128,87 @@
   // User filter
   const selectedUserFilter = ref('');
   
-  // Fake user data with tasks
-  const users = ref([
-    {
-      id: 1,
-      name: 'Alice',
-      tasks: [
-        { id: 1, title: 'Task 1', description: 'Description for task 1', completed: false, hours: 3, date: currentDate }, // Today's date
-        { id: 2, title: 'Task 2', description: 'Description for task 2', completed: true, hours: 2, date: currentDate }, // Today's date
-        { id: 3, title: 'Past Task', description: 'A task from yesterday', completed: false, hours: 1, date: '2024-09-30' }, // Past date
-      ],
-    },
-    {
-      id: 2,
-      name: 'Bob',
-      tasks: [
-        { id: 4, title: 'Task 3', description: 'Description for task 3', completed: false, hours: 4, date: currentDate }, // Today's date
-        { id: 5, title: 'Future Task', description: 'A task for tomorrow', completed: true, hours: 1, date: '2024-10-02' }, // Future date
-      ],
-    },
-    {
-      id: 3,
-      name: 'Charlie',
-      tasks: [
-        { id: 6, title: 'Task 4', description: 'Description for task 4', completed: true, hours: 1, date: currentDate }, // Today's date
-        { id: 7, title: 'Task 5', description: 'Description for task 5', completed: false, hours: 5, date: currentDate }, // Today's date
-      ],
-    },
-  ]);
-  
   // Modal state
   const showModal = ref(false);
-  const selectedUser = ref(users.value[0].id); // Default to the first user
+  const selectedUser = ref(null); // Default to the first user
   const newTask = ref({ title: '', description: '' }); // Removed hours field
-  
+
+  //state for storing users and tasks
+  const users = ref([]);
+  const tasks = ref([]);
+
+  //Function to fetch and map tasks to users
+  const fetchTasks = async () => {
+    try {
+      const fetchedTasks = await getTasks();
+      //Process tasks to group by users
+      const groupedUsers = fetchedTasks.reduce((acc, task) => {
+        const user = acc.find((u) => u.id === task.user_id);
+        if (user) {
+          user.tasks.push({
+            id: task.id,
+            title: task.title,
+            description: task.description,
+            done: task.status === 'Done',
+            hours: task.hours_worked,
+            date: task.date_added,
+            link: task.link
+          });
+        } else {
+          acc.push({
+            id: task.user_id,
+            name: `${task.user.first_name} ${task.user.last_name}`,
+            tasks:[
+              {
+                id: task.id,
+                title: task.title,
+                description: task.description,
+                done: task.status === 'Done',
+                hours: task.hours_worked,
+                date: task.date_added,
+                link: task.link
+              },
+            ],
+          });
+        }
+        return acc;
+      }, []);
+      users.value = groupedUsers;
+      if (users.value.length > 0) {
+      selectedUser.value = users.value[0].id;
+    }
+    } catch (error) {
+      console.error('Error fetching tasks:', error);
+    }
+  };
+
+  //Call fetchTasks on component mount
+  // onMounted(() => {
+  //   fetchTasks();
+  // });
+  onMounted(async () => {
+
+  // Start polling for new tasks
+  onUnmounted(() => clearInterval(intervalId)); // Clear interval on component unmount
+  await fetchTasks();
+});
+// let intervalId = null;
+
+// onMounted(async () => {
+//     await fetchTasks(); // Initial fetch
+//     intervalId = setInterval(fetchTasks, 5000); // Poll every 5 seconds
+// });
+
+// onUnmounted(() => {
+//     clearInterval(intervalId); // Clear interval on component unmount
+// });
+
   // Function to add a new task
   const addTask = () => {
     const user = users.value.find((u) => u.id === selectedUser.value);
     if (user) {
       const taskId = user.tasks.length + 1; // Simple ID generation
-      user.tasks.push({ id: taskId, ...newTask.value, completed: false, hours: 0, date: currentDate }); // Set date to current date for new tasks
+      user.tasks.push({ id: taskId, ...newTask.value, done: false, hours: 0, date: currentDate }); // Set date to current date for new tasks
       newTask.value = { title: '', description: '' }; // Reset the new task form
       showModal.value = false; // Close modal
     }
@@ -164,12 +216,13 @@
   
   // Function to filter tasks by date
   const filteredTasks = (tasks, date) => {
-    return tasks.filter((task) => task.date === date);
+    // return tasks.filter((task) => task.date.slice(0, 10) === date);
+    return tasks.filter((task) => new Date(task.date).toISOString().split('T')[0] === date);
   };
   
-  // Function to calculate total hours worked (only for completed tasks)
+  // Function to calculate total hours worked (only for done tasks)
   const totalHoursWorked = (tasks) => {
-    return tasks.reduce((total, task) => (task.completed ? total + task.hours : total), 0);
+    return tasks.reduce((total, task) => task.done ? total + (task.hours || 0) : total, 0);
   };
   
   // Computed property for filtered users

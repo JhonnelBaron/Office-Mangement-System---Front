@@ -12,7 +12,7 @@ export const useAuth = () => {
         try {
             console.log("Attempting login with", email.value, password.value);
             // Updated the API endpoint to /api/login
-            const response = await useNuxtApp().$api.post('/api/login', {
+            const response = await useNuxtApp().$api.post('/login', {
                 email: email.value,
                 password: password.value,
             });

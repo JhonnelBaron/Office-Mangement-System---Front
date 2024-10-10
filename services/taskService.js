@@ -4,7 +4,7 @@ export const addTask = async (taskData) => {
     const token = localStorage.getItem('auth_token'); // Retrieve token from localStorage
   
     try {
-      const response = await $api.post('/api/addTask', taskData, {
+      const response = await $api.post('/addTask', taskData, {
         headers: {
           Authorization: `Bearer ${token}` // Pass token for authorization
         }
@@ -20,7 +20,7 @@ export const addTask = async (taskData) => {
     const token = localStorage.getItem('auth_token');
   
     try {
-      const response = await $api.post(`/api/updateTask/${taskId}`, taskData, {
+      const response = await $api.post(`/updateTask/${taskId}`, taskData, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -36,7 +36,7 @@ export const addTask = async (taskData) => {
     const token = localStorage.getItem('auth_token');
   
     try {
-      const response = await $api.get('/api/tasks', {
+      const response = await $api.get('/tasks', {
         headers: {
           Authorization: `Bearer ${token}`
         }

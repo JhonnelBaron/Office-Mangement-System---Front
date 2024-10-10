@@ -114,16 +114,17 @@ const last7Days = ref(generateLast7Days());
 //   }
 // });
 onMounted(async () => {
-  await fetchTasks();
+
   // Start polling for new tasks
   onUnmounted(() => clearInterval(intervalId)); // Clear interval on component unmount
+  await fetchTasks();
 });
 
 // Function to fetch tasks
 const fetchTasks = async () => {
   try {
     const tasks = await getTasks();
-    console.log('Fetched tasks:', tasks); 
+    // console.log('Fetched tasks:', tasks); 
     taskData.value = tasks;
     filteredTasks.value = tasks;
   } catch (error) {
