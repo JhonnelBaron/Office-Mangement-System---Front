@@ -107,8 +107,10 @@
   </template>
   
   <script setup>
-  import { ref, watch, computed } from 'vue';
+  import { ref, watch, computed, onMounted, onUnmounted } from 'vue';
   import { getTasks } from '@/services/chief/taskService';
+  import Pusher from 'pusher-js';
+
   
   // Define page metadata
   definePageMeta({
@@ -132,6 +134,7 @@
   const showModal = ref(false);
   const selectedUser = ref(null); // Default to the first user
   const newTask = ref({ title: '', description: '' }); // Removed hours field
+  
 
   //state for storing users and tasks
   const users = ref([]);
@@ -186,12 +189,12 @@
   // onMounted(() => {
   //   fetchTasks();
   // });
-  onMounted(async () => {
+//   onMounted(async () => {
 
-  // Start polling for new tasks
-  onUnmounted(() => clearInterval(intervalId)); // Clear interval on component unmount
-  await fetchTasks();
-});
+//   // Start polling for new tasks
+//   onUnmounted(() => clearInterval(intervalId)); // Clear interval on component unmount
+//   await fetchTasks();
+// });
 // let intervalId = null;
 
 // onMounted(async () => {
@@ -202,6 +205,33 @@
 // onUnmounted(() => {
 //     clearInterval(intervalId); // Clear interval on component unmount
 // });
+
+onMounted(async () => {
+  await fetchTasks();
+
+  // Initialize Pusher with your app key and cluster
+  const pusher = new Pusher('3d3383452fb5db324a27', {
+    cluster: 'ap1',
+  });
+
+  // Subscribe to the channel
+  const channel = pusher.subscribe('private-tasks');
+
+  // Bind to the 'task-updated' event
+  channel.bind('task.created', async (data) => {
+    // When new data is received from Pusher, re-fetch tasks
+    await fetchTasks();
+  });
+});
+
+onUnmounted(() => {
+  const pusher = new Pusher('3d3383452fb5db324a27', {
+    cluster: 'ap1',
+  });
+  const channel = pusher.channel('private-tasks');
+  channel.unbind('task.created');
+  pusher.unsubscribe('private-tasks');
+});
 
   // Function to add a new task
   const addTask = () => {
