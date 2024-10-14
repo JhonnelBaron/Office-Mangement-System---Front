@@ -16,9 +16,10 @@
     <div class="mb-4 text-right text-sm font-medium text-gray-600">
       Today: {{ formatDate(new Date()) }}
     </div>
+    
 
     <!-- Filters for Task List as Dropdowns -->
-    <div class="mb-6 flex space-x-4">
+    <div class="mb-6 flex justify-between space-x-4">
       <div class="flex items-center">
         <label class="mr-2">Tasks for:</label>
         <select v-model="selectedTodayDate" @change="filterTasks('today')" class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300">
@@ -26,16 +27,30 @@
             {{ day.label }}
           </option>
         </select>
-      </div>
-
-      <div class="flex items-center">
-        <label class="mr-2">Filter by Cutoff:</label>
+        <label class="ml-3 mr-2">Filter by Cutoff:</label>
         <select v-model="selectedCutoff" @change="filterTasks('cutoff')" class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300">
           <option value="cutoff1">Cutoff (26-10)</option>
           <option value="cutoff2">Cutoff (11-25)</option>
         </select>
       </div>
+
+      <div class="flex space-x-4">
+        <div class="flex items-center">
+          <p>Pending: </p>
+          <div class="border border-yellow-500 bg-yellow-300 w-4 h-4 ml-2 mr-2 rounded-full"></div>
+        <span>1 Day</span>
+      </div>
+      <div class="flex items-center">
+        <div class="border border-orange-500 bg-orange-500 w-4 h-4 mr-2 rounded-full"></div>
+        <span>2 Days</span>
+      </div>
+      <div class="flex items-center">
+        <div class="border border-red-500 bg-red-500 w-4 h-4 mr-2 rounded-full"></div>
+        <span>3 Days</span>
+      </div>
+      </div>
     </div>
+
 
     <!-- Task List -->
     <TaskList :tasks="filteredTasks" @updateTasks="handleTaskUpdate" />
@@ -113,6 +128,7 @@ const last7Days = ref(generateLast7Days());
 //     console.error('Error fetching tasks:', error);
 //   }
 // });
+let intervalId = null;
 onMounted(async () => {
 
   // Start polling for new tasks

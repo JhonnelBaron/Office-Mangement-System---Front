@@ -6,6 +6,7 @@
           <div
             v-for="task in tasks"
             :key="task.id"
+            :class="taskBorderClass(task)"
             class="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
           >
             <!-- Task Title and Details Container -->
@@ -153,6 +154,24 @@
     showEditModal.value = false; // Hide the edit modal
     editedTask.value = {}; // Reset edited task
   };
+
+  // Function to determine the border color based on time since added
+const taskBorderClass = (task) => {
+  const hoursSinceAdded = (new Date() - new Date(task.date_added)) / (1000 * 60 * 60);
+  let borderColor = 'border-transparent'; // Default border color
+  
+  if (task.status !== 'Done') {
+    if (hoursSinceAdded >= 72) {
+      borderColor = 'border-red-500'; // Red for 48 hours
+    } else if (hoursSinceAdded >= 48) {
+      borderColor = 'border-orange-500'; // Orange for 36 hours
+    } else if (hoursSinceAdded >= 24) {
+      borderColor = 'border-yellow-500'; // Yellow for 24 hours
+    }
+  }
+  
+  return `border-4 ${borderColor}`;
+};
   </script>
   
   <style scoped>

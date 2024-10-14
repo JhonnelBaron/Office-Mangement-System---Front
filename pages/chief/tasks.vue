@@ -30,8 +30,28 @@
         @change="updateFilteredTasks"
       />
     </div>
+        <!-- Reload Icon -->
+    <svg 
+          class="w-6 h-6 text-gray-800 dark:text-white cursor-pointer hover:text-gray-900 transition duration-200" 
+          aria-hidden="true" 
+          xmlns="http://www.w3.org/2000/svg" 
+          fill="none" 
+          viewBox="0 0 24 24"
+          @click="reloadData"
+          title="Reload Data"
+        >
+          <path 
+            stroke="currentColor" 
+            stroke-linecap="round" 
+            stroke-linejoin="round" 
+            stroke-width="2" 
+            d="M17.651 7.65a7.131 7.131 0 0 0-12.68 3.15M18.001 4v4h-4m-7.652 8.35a7.13 7.13 0 0 0 12.68-3.15M6 20v-4h4"
+          />
+        </svg>
   </div>
-  
+
+
+
   <div class="mb-4 text-right text-sm font-medium text-gray-600">
         <strong>Date Today: </strong>{{ formatDate(new Date()) }}
       </div>
@@ -49,9 +69,9 @@
       <table class="min-w-full border border-gray-300 rounded-lg overflow-hidden shadow-md">
         <thead class="bg-gray-200">
           <tr>
-            <th class="border border-gray-300 px-4 py-2 text-left font-medium">Employee</th>
-            <th class="border border-gray-300 px-4 py-2 text-left font-medium">Tasks Assigned</th>
-            <th class="border border-gray-300 px-4 py-2 text-left font-medium">Total Hours Worked</th>
+            <th class="border border-gray-300 px-4 py-2 text-left font-medium" style="width: 50px;">Employee</th>
+            <th class="border border-gray-300 px-4 py-2 text-left font-medium" style="width: 500px;">Tasks Assigned</th>
+            <th class="border border-gray-300 px-4 py-2 text-left font-medium" style="width: 150px;">Total Hours Worked</th>
           </tr>
         </thead>
         <tbody>
@@ -60,23 +80,32 @@
             <td class="border border-gray-300 px-4 py-2">
               <ul>
                 <li v-for="task in filteredTasks(user.tasks, filterDate)" :key="task.id">
-                <div>
+                <div :class="getTaskColor(task)">
                   <strong>{{ task.title }}</strong> -
                   <span>{{ task.done ? '✔ Done' : '✦ In Progress' }}</span>
                 </div>
                 <div class="flex justify-between items-center">
                   <p class="text-gray-600">Description: {{ task.description }}</p>
-                  <p v-if="task.done" class="text-gray-500 inline">Hours: {{ task.hours }}</p>
-                  <p v-if="task.link" class="text-blue-600">
-                    <a :href="task.link" target="_blank">View Document</a>
+                  <!-- <p v-if="task.done" class="text-gray-500 inline">Hours: {{ task.hours }}</p> -->
+                  <p v-if="task.done" class="text-gray-500">
+                    <span v-if="Math.floor(task.hours) > 0">
+                      {{ Math.floor(task.hours) }} hour<span v-if="Math.floor(task.hours) > 1">s</span> 
+                    </span>
+                    <span  v-if="(task.hours - Math.floor(task.hours)) * 60 > 0">
+                      {{ ' ' +  ((task.hours - Math.floor(task.hours)) * 60).toFixed(0) }} minute<span v-if="((task.hours - Math.floor(task.hours)) * 60).toFixed(0) > 1">s</span>
+                    </span>
                   </p>
                 </div>
+                <p v-if="task.link" class="text-blue-600">
+                    <a :href="task.link" target="_blank">View Document</a>
+                  </p>
                 </li>
                 <li v-if="filteredTasks(user.tasks, filterDate).length === 0" class="text-gray-500">No tasks for this date.</li>
               </ul>
             </td>
             <td class="border border-gray-300 px-4 py-2">
-              <span>{{ totalHoursWorked(filteredTasks(user.tasks, filterDate)) }} hours</span>
+              <span>{{ totalHoursWorked(filteredTasks(user.tasks, filterDate)).totalHours }} hours 
+                {{ totalHoursWorked(filteredTasks(user.tasks, filterDate)).totalMinutes }} minutes</span>
             </td>
           </tr>
         </tbody>
@@ -107,10 +136,8 @@
   </template>
   
   <script setup>
-  import { ref, watch, computed, onMounted, onUnmounted } from 'vue';
+  import { ref, watch, computed } from 'vue';
   import { getTasks } from '@/services/chief/taskService';
-  import Pusher from 'pusher-js';
-
   
   // Define page metadata
   definePageMeta({
@@ -134,7 +161,6 @@
   const showModal = ref(false);
   const selectedUser = ref(null); // Default to the first user
   const newTask = ref({ title: '', description: '' }); // Removed hours field
-  
 
   //state for storing users and tasks
   const users = ref([]);
@@ -195,43 +221,22 @@
 //   onUnmounted(() => clearInterval(intervalId)); // Clear interval on component unmount
 //   await fetchTasks();
 // });
-// let intervalId = null;
-
-// onMounted(async () => {
-//     await fetchTasks(); // Initial fetch
-//     intervalId = setInterval(fetchTasks, 5000); // Poll every 5 seconds
-// });
-
-// onUnmounted(() => {
-//     clearInterval(intervalId); // Clear interval on component unmount
-// });
+let intervalId = null;
 
 onMounted(async () => {
-  await fetchTasks();
-
-  // Initialize Pusher with your app key and cluster
-  const pusher = new Pusher('3d3383452fb5db324a27', {
-    cluster: 'ap1',
-  });
-
-  // Subscribe to the channel
-  const channel = pusher.subscribe('private-tasks');
-
-  // Bind to the 'task-updated' event
-  channel.bind('task.created', async (data) => {
-    // When new data is received from Pusher, re-fetch tasks
-    await fetchTasks();
-  });
+    await fetchTasks(); // Initial fetch
+    // intervalId = setInterval(fetchTasks, 5000); // Poll every 5 seconds
 });
 
 onUnmounted(() => {
-  const pusher = new Pusher('3d3383452fb5db324a27', {
-    cluster: 'ap1',
-  });
-  const channel = pusher.channel('private-tasks');
-  channel.unbind('task.created');
-  pusher.unsubscribe('private-tasks');
+    clearInterval(intervalId); // Clear interval on component unmount
 });
+
+// Reload function to refresh tasks
+const reloadData = async () => {
+  await fetchTasks();
+  console.log('Data reloaded');
+};
 
   // Function to add a new task
   const addTask = () => {
@@ -249,11 +254,31 @@ onUnmounted(() => {
     // return tasks.filter((task) => task.date.slice(0, 10) === date);
     return tasks.filter((task) => new Date(task.date).toISOString().split('T')[0] === date);
   };
-  
-  // Function to calculate total hours worked (only for done tasks)
-  const totalHoursWorked = (tasks) => {
-    return tasks.reduce((total, task) => task.done ? total + (task.hours || 0) : total, 0);
-  };
+
+  function convertDecimalToTime(decimalHours) {
+    const totalMinutes = Math.floor(decimalHours * 60); // Total minutes
+    const hours = Math.floor(totalMinutes / 60); // Full hours
+    const minutes = totalMinutes % 60; // Remaining minutes
+    return { hours, minutes };
+}
+const totalHoursWorked = (tasks) => {
+    let totalHours = 0;
+    let totalMinutes = 0;
+
+    tasks.forEach(task => {
+        if (task.done && task.hours) {
+            totalHours += Math.floor(task.hours); // Add full hours
+            totalMinutes += Math.round((task.hours % 1) * 60); // Add minutes from decimal part
+        }
+    });
+
+    // Convert total minutes to hours if greater than 60
+    totalHours += Math.floor(totalMinutes / 60);
+    totalMinutes = totalMinutes % 60;
+
+    return { totalHours, totalMinutes }; // Return an object
+};
+
   
   // Computed property for filtered users
   const filteredUsers = computed(() => {
@@ -275,6 +300,21 @@ onUnmounted(() => {
     // Trigger reactivity when the date changes, if necessary.
     filteredUsers.value; // Access to trigger reactivity
   };
+
+  const getTaskColor = (task) => {
+  const taskDate = new Date(task.date);
+  const now = new Date();
+  const diffInHours = Math.floor((now - taskDate) / (1000 * 60 * 60)); // Difference in hours
+
+  if (task.done) return 'text-gray-500'; // If done, return gray color
+
+  if (diffInHours >= 72) return 'text-red-600'; // Red if over 72 hours
+  if (diffInHours >= 48) return 'text-orange-600'; // Orange if over 48 hours
+  if (diffInHours >= 24) return 'text-yellow-500'; // Yellow if over 24 hours
+
+  return ''; // Default color if not in progress long enough
+};
+
   </script>
   
   <style scoped>
