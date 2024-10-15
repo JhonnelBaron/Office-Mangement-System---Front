@@ -42,10 +42,6 @@
   import { ref, computed, onMounted } from 'vue';
   import { getAttendance } from '@/services/chief/attendanceService';
   
-  definePageMeta({
-    layout: 'chief', // Using the sidebar
-  });
-  
   const currentDate = new Date().toLocaleDateString('en-CA');
   const attendance = ref([]);
   const employees = ref([]); // Assuming you have a list of employees
@@ -56,7 +52,7 @@
     try {
       attendance.value = await getAttendance();
       // Assuming you have a function to fetch employees
-      employees.value = await getEmployees(); // Replace with your function to get employees
+    //   employees.value = await getEmployees(); // Replace with your function to get employees
     } catch (error) {
       console.error('Error fetching attendance:', error);
     }

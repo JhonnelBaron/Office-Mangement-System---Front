@@ -80,13 +80,12 @@
     </div>
 
     <!-- Attendance Summary Chart (Placeholder) -->
-    <div class="p-6 bg-gray-50 dark:bg-gray-700 rounded-lg shadow-md">
+    <!-- <div class="p-6 bg-gray-50 dark:bg-gray-700 rounded-lg shadow-md">
       <h3 class="text-lg font-bold mb-4 text-gray-700 dark:text-gray-300">Attendance Summary (Monthly)</h3>
       <div class="h-64 flex items-center justify-center text-gray-400 dark:text-gray-500">
-        <!-- Placeholder for chart (You can replace this with a chart component like Chart.js) -->
         [Attendance Chart Placeholder]
       </div>
-    </div>
+    </div> -->
   </div>
 </template>
 
