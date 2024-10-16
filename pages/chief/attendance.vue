@@ -1,7 +1,12 @@
 <template>
   <div>
-    <div class="flex justify-between items-center">
+    <div class="flex justify-between items-center pb-2">
+    <div class="flex items-center">
       <h2 class="text-2xl font-bold mb-4">Attendance Monitoring</h2>
+      <NuxtLink to="/chief/attendance-summary" class="text-sm font-bold mb-4 mt-1.5 ml-10 border-bottom:black">
+      <span >Weekly Summary</span>
+      </NuxtLink>
+    </div>
       <div class="mb-4 text-right text-sm font-medium text-gray-600">
         <strong>Date Today: </strong>{{ formatDate(new Date()) }}
       </div>
@@ -67,7 +72,7 @@
             :key="attendance.id"
             class="border-t text-gray-600 dark:text-gray-400"
           >
-            <td class="py-2">{{ attendance.user.first_name }} {{ attendance.user.last_name }}</td>
+            <td class="py-2">{{ attendance.employeeName }}</td>
             <td class="py-2" :class="getStatusClass(attendance.status)">
               {{ attendance.status }}
             </td>
@@ -91,64 +96,65 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
-import { getAttendance } from '@/services/chief/attendanceService';
+import { getAttendance, getEmployees } from '@/services/chief/attendanceService';
 
 definePageMeta({
   layout: 'chief', // Using the sidebar
 });
 
+const employees = ref([]);
 const currentDate = new Date().toLocaleDateString('en-CA');
 const attendance = ref([]);
 const filterDate = ref(currentDate);
 const filteredAttendance = ref([]);
 const selectedFilter = ref('all');
 
+const fetchEmployees = async () => {
+  try {
+    const response = await getEmployees();
+    employees.value = response; 
+  } catch (error) {
+    console.error('Error fetching employees:', error);
+  }
+};
+
 // Function to fetch attendance data
 const fetchAttendance = async () => {
   try {
     attendance.value = await getAttendance();
-    filteredAttendance.value = attendance.value;
+ updateFilteredAttendance(); 
   } catch (error) {
     console.error('Error fetching attendance:', error);
   }
 };
 
-// Watcher to update filtered tasks based on the selected date
-// const updateFilteredTasks = () => {
-//   if (filterDate.value) {
-//     filteredAttendance.value = attendance.value.filter((item) =>
-//       item.date.includes(filterDate.value)
-//     );
-//   } else {
-//     filteredAttendance.value = attendance.value;
-//   }
-// };
 
-// // Function to filter attendance based on selected status
-// const filterAttendance = () => {
-//   if (selectedFilter.value === 'onTime') {
-//     filteredAttendance.value = attendance.value.filter(
-//       (a) => a.status === 'early' || a.status === 'exactly'
-//     );
-//   } else if (selectedFilter.value === 'late') {
-//     filteredAttendance.value = attendance.value.filter((a) => a.status === 'late');
-//   } else if (selectedFilter.value === 'absent') {
-//     filteredAttendance.value = attendance.value.filter((a) => a.status === 'absent');
-//   } else {
-//     filteredAttendance.value = attendance.value; // Show all
-//   }
-// };
+onMounted(() => {
+  fetchEmployees().then(fetchAttendance); // Ensure attendance is fetched after employees
+});
 
 // Function to update filtered attendance based on selected date and status
 const updateFilteredAttendance = () => {
-  filteredAttendance.value = attendance.value.filter((item) => {
-    const matchesDate = filterDate.value ? item.date.includes(filterDate.value) : true;
+  // Start by mapping through employees instead of attendance
+  filteredAttendance.value = employees.value.map((employee) => {
+    // Find the corresponding attendance record for the current employee
+    const attendanceRecord = attendance.value.find(item => item.user_id === employee.id && item.date.includes(filterDate.value));
+
+    // Return a new object that includes employee name and attendance details
+    return {
+      employeeName: `${employee.first_name} ${employee.last_name}`,
+      status: attendanceRecord ? attendanceRecord.status : 'absent', // Default to 'absent' if no record found
+      time_in: attendanceRecord ? attendanceRecord.time_in : '--', // Default to '--' if no record found
+      time_out: attendanceRecord ? attendanceRecord.time_out : '--', // Default to '--' if no record found
+      score: attendanceRecord ? attendanceRecord.score : 0 // Default score to 0 if no record found
+    };
+  }).filter((item) => {
     const matchesStatus = selectedFilter.value === 'all' || 
       (selectedFilter.value === 'onTime' && (item.status === 'early' || item.status === 'exactly')) ||
       (selectedFilter.value === 'late' && item.status === 'late') ||
       (selectedFilter.value === 'absent' && item.status === 'absent');
 
-    return matchesDate && matchesStatus;
+    return matchesStatus; // Only filter based on status now
   });
 };
 
@@ -157,25 +163,17 @@ const presentCount = computed(() =>
   attendance.value.filter(a => a.date.includes(filterDate.value) && a.status !== 'absent').length
 );
 
+// const absentCount = computed(() => 
+//   attendance.value.filter(a => a.date.includes(filterDate.value) && a.status === 'absent').length
+// );
+
 const absentCount = computed(() => 
-  attendance.value.filter(a => a.date.includes(filterDate.value) && a.status === 'absent').length
+  filteredAttendance.value.filter(item => item.status === 'absent').length
 );
 
 const lateCount = computed(() => 
   attendance.value.filter(a => a.date.includes(filterDate.value) && (a.status === 'late' || a.status === 'early' || a.status === 'exactly')).length
 );
-// const presentCount = computed(() =>
-//   filteredAttendance.value.filter((a) => a.status !== 'absent').length
-// );
-
-// const absentCount = computed(() =>
-//   filteredAttendance.value.filter((a) => a.status === 'absent').length
-// );
-
-// const lateCount = computed(() => {
-//   return filteredAttendance.value.filter((a) => a.status === 'late').length +
-//          filteredAttendance.value.filter((a) => a.status === 'early' || a.status === 'exactly').length; // Assuming early and exactly are considered on time
-// });
 
 // Helper function to assign status classes for colors
 const getStatusClass = (status) => {
@@ -198,7 +196,7 @@ const formatDate = (dateString) => {
 };
 
 // Fetch attendance data when component is mounted
-onMounted(fetchAttendance);
+// onMounted(fetchAttendance);
 </script>
 
 <style scoped>
