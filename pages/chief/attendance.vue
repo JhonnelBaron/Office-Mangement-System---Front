@@ -6,6 +6,9 @@
       <NuxtLink to="/chief/attendance-summary" class="text-sm font-bold mb-4 mt-1.5 ml-10 border-bottom:black">
       <span >Weekly Summary</span>
       </NuxtLink>
+      <NuxtLink to="/chief/attendance-summary-monthly" class="text-sm font-bold mb-4 mt-1.5 ml-10 border-bottom:black">
+      <span >Monthly Summary</span>
+      </NuxtLink>
     </div>
       <div class="mb-4 text-right text-sm font-medium text-gray-600">
         <strong>Date Today: </strong>{{ formatDate(new Date()) }}

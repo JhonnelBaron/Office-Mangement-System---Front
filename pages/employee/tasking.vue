@@ -2,6 +2,7 @@
   <div class="p-6">
     <div class="flex justify-between items-center mb-6">
       <h2 class="text-2xl font-bold">Tasking</h2>
+      <ReportGenerator :tasks="filteredTasks" :cutoffDateRange="cutoffDateRange" />
 
       <!-- Add Task Text Link with Plus Icon -->
       <div class="flex items-center cursor-pointer text-blue-600 hover:underline" @click="openModal">
@@ -94,6 +95,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
 import TaskList from '@/components/TaskList.vue';
+import ReportGenerator from '@/components/employee/ReportGenerator.vue';
 import { addTask as addTaskService, getTasks } from '@/services/taskService';
 
 definePageMeta({
