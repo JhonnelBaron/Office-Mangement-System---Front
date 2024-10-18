@@ -30,8 +30,8 @@
         </select>
         <label class="ml-3 mr-2">Filter by Cutoff:</label>
         <select v-model="selectedCutoff" @change="filterTasks('cutoff')" class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300">
-          <option value="cutoff1">Cutoff (26-10)</option>
-          <option value="cutoff2">Cutoff (11-25)</option>
+          <option value="cutoff1">{{ cutoffDateRange.cutoff1.currentMonth }} 11-25</option>
+          <option value="cutoff2">{{ cutoffDateRange.cutoff2.currentMonth }} 26 - {{ cutoffDateRange.cutoff2.nextMonth }} 10</option>
         </select>
       </div>
 
@@ -111,6 +111,25 @@ const showModal = ref(false);
 const newTaskTitle = ref('');
 const newTaskDescription = ref('');
 const newTaskLink = ref('');
+const getMonthName = (monthIndex) => {
+  const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  return months[monthIndex];
+};
+// Computed properties for cutoff dates
+const cutoffDateRange = reactive({
+  cutoff1: {
+    start: 11,
+    end: 25,
+    currentMonth: getMonthName(new Date().getMonth()),
+  },
+  cutoff2: {
+    start: 26,
+    end: 10,
+    currentMonth: getMonthName(new Date().getMonth()),
+    nextMonth: getMonthName((new Date().getMonth() + 1) % 12),// Handle month increment for cutoff2
+  },
+});
+
 
 // State for dropdown selection
 const selectedTodayDate = ref(new Date().toISOString().split('T')[0]);
@@ -211,19 +230,39 @@ const formatDate = (dateString) => {
 };
 
 // Task filters
+// const filterTasks = (filterType) => {
+//   const today = new Date(selectedTodayDate.value);
+//   filteredTasks.value = taskData.value.filter((task) => {
+//     const taskDate = new Date(task.date_added);
+//     if (filterType === 'today') {
+//       return taskDate.toDateString() === today.toDateString();
+//     } else if (filterType === 'cutoff') {
+//       return selectedCutoff.value === 'cutoff1'
+//         ? taskDate.getDate() <= 10
+//         : taskDate.getDate() >= 11;
+//     }
+//   });
+// };
 const filterTasks = (filterType) => {
   const today = new Date(selectedTodayDate.value);
   filteredTasks.value = taskData.value.filter((task) => {
     const taskDate = new Date(task.date_added);
-    if (filterType === 'today') {
-      return taskDate.toDateString() === today.toDateString();
-    } else if (filterType === 'cutoff') {
-      return selectedCutoff.value === 'cutoff1'
-        ? taskDate.getDate() <= 10
-        : taskDate.getDate() >= 11;
+
+    // First cutoff: 11th - 25th of the current month
+    if (filterType === 'cutoff' && selectedCutoff.value === 'cutoff1') {
+      return taskDate.getDate() >= 11 && taskDate.getDate() <= 25 && taskDate.getMonth() === today.getMonth();
+
+    // Second cutoff: 26th - 10th (cross-month cutoff)
+    } else if (filterType === 'cutoff' && selectedCutoff.value === 'cutoff2') {
+      const isEndOfMonth = taskDate.getDate() >= 26 && taskDate.getMonth() === today.getMonth();
+      const isStartOfNextMonth = taskDate.getDate() <= 10 && taskDate.getMonth() === (today.getMonth() + 1) % 12;
+      return isEndOfMonth || isStartOfNextMonth;
     }
+
+    return true;
   });
 };
+
 
 // Function to print accomplishment report
 const printAccomplishmentReport = () => {
