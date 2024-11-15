@@ -23,12 +23,14 @@
     <div class="mb-6 flex justify-between space-x-4">
       <div class="flex items-center">
         <label class="mr-2">Tasks for:</label>
-        <select v-model="selectedTodayDate" @change="filterTasks('today')" class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300">
-          <option v-for="day in last7Days" :key="day.value" :value="day.value">
-            {{ day.label }}
-          </option>
-        </select>
-        <label class="ml-3 mr-2">Filter by Cutoff:</label>
+        <div class="flex items-center">
+      <input
+        type="date"
+        class="border p-2 rounded focus:outline-none focus:ring focus:ring-blue-500 bg-gray-200 rounded-lg hover:bg-gray-300"
+        @change="updateFilteredTasks"
+      />
+    </div>
+        <label class="ml-3 mr-2">Cutoff:</label>
         <select v-model="selectedCutoff" @change="filterTasks('cutoff')" class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300">
             <option value="previousCutoff1">{{ cutoffDateRange.previousCutoff1.previousMonth }} 11-25</option>
   <option value="previousCutoff2">{{ cutoffDateRange.previousCutoff2.previousMonth }} 26 - {{ cutoffDateRange.previousCutoff2.currentMonth }} 10</option>
@@ -107,8 +109,9 @@ definePageMeta({
 // State for task data
 const taskData = ref([]);
 const filteredTasks = ref([]);
-
+const currentDate = new Date().toLocaleDateString('en-CA');
 // State for managing the modal
+const filterDate = ref(currentDate); // Default to today
 const showModal = ref(false);
 const newTaskTitle = ref('');
 const newTaskDescription = ref('');
@@ -146,22 +149,43 @@ const cutoffDateRange = reactive({
 
 // State for dropdown selection
 const selectedTodayDate = ref(new Date().toISOString().split('T')[0]);
-const selectedCutoff = ref('cutoff1');
+const selectedCutoff = ref('');
+
+const determineDefaultCutoff = () => {
+  const today = new Date();
+  const day = today.getDate();
+  const currentMonth = today.getMonth();
+
+  if (day >= 11 && day <= 25) {
+    // Current month 11-25
+    selectedCutoff.value = 'cutoff1';
+  } else if (day >= 26) {
+    // Current month 26 - Next month 10
+    selectedCutoff.value = 'cutoff2';
+  } else if (day <= 10) {
+    // Previous month 26 - Current month 10
+    selectedCutoff.value = 'previousCutoff2';
+  } else {
+    // Previous month 11-25
+    selectedCutoff.value = 'previousCutoff1';
+  }
+};
+
+
+
+// Automatically set and update the default cutoff when component mounts
+onMounted(() => {
+  determineDefaultCutoff();
+
+  // Optionally, you could add a daily check if you need it to dynamically adjust each day
+  setInterval(() => {
+    determineDefaultCutoff();
+  }, 24 * 60 * 60 * 1000); // Check once a day
+});
 
 // Generate last 7 days for "Tasks for Today" filter
 const last7Days = ref(generateLast7Days());
 
-// Fetch tasks on component mount
-// onMounted(async () => {
-//   try {
-//     const tasks = await getTasks();
-//     console.log('Fetched tasks:', tasks); 
-//     taskData.value = tasks;
-//     filteredTasks.value = tasks;
-//   } catch (error) {
-//     console.error('Error fetching tasks:', error);
-//   }
-// });
 let intervalId = null;
 onMounted(async () => {
 
@@ -176,7 +200,8 @@ const fetchTasks = async () => {
     const tasks = await getTasks();
     // console.log('Fetched tasks:', tasks); 
     taskData.value = tasks;
-    filteredTasks.value = tasks;
+    // filteredTasks.value = tasks;
+    filterTasks('cutoff');
   } catch (error) {
     console.error('Error fetching tasks:', error);
   }
@@ -242,75 +267,46 @@ const formatDate = (dateString) => {
   return new Date(dateString).toLocaleDateString(undefined, options);
 };
 
-// Task filters
-// const filterTasks = (filterType) => {
-//   const today = new Date(selectedTodayDate.value);
-//   filteredTasks.value = taskData.value.filter((task) => {
-//     const taskDate = new Date(task.date_added);
-//     if (filterType === 'today') {
-//       return taskDate.toDateString() === today.toDateString();
-//     } else if (filterType === 'cutoff') {
-//       return selectedCutoff.value === 'cutoff1'
-//         ? taskDate.getDate() <= 10
-//         : taskDate.getDate() >= 11;
-//     }
-//   });
-// };
+const isWeekend = (date) => {
+  const day = date.getDay();
+  return day === 0 || day === 6; // Sunday = 0, Saturday = 6
+};
+
+
 const filterTasks = (filterType) => {
-  const today = new Date(selectedTodayDate.value);
+  const today = new Date();
   filteredTasks.value = taskData.value.filter((task) => {
     const taskDate = new Date(task.date_added);
 
     if (filterType === 'cutoff') {
-      // Current month 11-25 cutoff
       if (selectedCutoff.value === 'cutoff1') {
         return taskDate.getDate() >= 11 && taskDate.getDate() <= 25 && taskDate.getMonth() === today.getMonth();
       }
-
-      // Current month 26-10 cutoff (cross-month)
       if (selectedCutoff.value === 'cutoff2') {
-        const isEndOfMonth = taskDate.getDate() >= 26 && taskDate.getMonth() === today.getMonth();
-        const isStartOfNextMonth = taskDate.getDate() <= 10 && taskDate.getMonth() === (today.getMonth() + 1) % 12;
-        return isEndOfMonth || isStartOfNextMonth;
+        return (taskDate.getDate() >= 26 && taskDate.getMonth() === today.getMonth()) ||
+               (taskDate.getDate() <= 10 && taskDate.getMonth() === (today.getMonth() + 1) % 12);
       }
-
-      // Previous month 11-25 cutoff
       if (selectedCutoff.value === 'previousCutoff1') {
         return taskDate.getDate() >= 11 && taskDate.getDate() <= 25 && taskDate.getMonth() === (today.getMonth() - 1 + 12) % 12;
       }
-
-      // Previous month 26-10 cutoff (cross-month)
       if (selectedCutoff.value === 'previousCutoff2') {
-        const isEndOfPreviousMonth = taskDate.getDate() >= 26 && taskDate.getMonth() === (today.getMonth() - 1 + 12) % 12;
-        const isStartOfCurrentMonth = taskDate.getDate() <= 10 && taskDate.getMonth() === today.getMonth();
-        return isEndOfPreviousMonth || isStartOfCurrentMonth;
+        return (taskDate.getDate() >= 26 && taskDate.getMonth() === (today.getMonth() - 1 + 12) % 12) ||
+               (taskDate.getDate() <= 10 && taskDate.getMonth() === today.getMonth());
       }
     }
 
-    return true;
+    return false;
   });
 };
 
-// const filterTasks = (filterType) => {
-//   const today = new Date(selectedTodayDate.value);
-//   filteredTasks.value = taskData.value.filter((task) => {
-//     const taskDate = new Date(task.date_added);
 
-//     // First cutoff: 11th - 25th of the current month
-//     if (filterType === 'cutoff' && selectedCutoff.value === 'cutoff1') {
-//       return taskDate.getDate() >= 11 && taskDate.getDate() <= 25 && taskDate.getMonth() === today.getMonth();
-
-//     // Second cutoff: 26th - 10th (cross-month cutoff)
-//     } else if (filterType === 'cutoff' && selectedCutoff.value === 'cutoff2') {
-//       const isEndOfMonth = taskDate.getDate() >= 26 && taskDate.getMonth() === today.getMonth();
-//       const isStartOfNextMonth = taskDate.getDate() <= 10 && taskDate.getMonth() === (today.getMonth() + 1) % 12;
-//       return isEndOfMonth || isStartOfNextMonth;
-//     }
-
-//     return true;
-//   });
-// };
-
+const updateFilteredTasks = () => {
+  const selectedDate = filterDate.value;
+  filteredTasks.value = taskData.value.filter((task) => {
+    const taskDate = new Date(task.date_added).toISOString().split('T')[0];
+    return taskDate === selectedDate;
+  });
+};
 
 // Function to print accomplishment report
 const printAccomplishmentReport = () => {

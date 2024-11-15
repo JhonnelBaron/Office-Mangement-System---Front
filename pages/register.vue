@@ -6,7 +6,7 @@
         <!-- Left Side: System Info -->
         <div class="lg:w-1/2 text-center mt-20 lg:text-left mb-8 lg:mb-0 ml-20">
           <h1 class="text-4xl font-bold" style="color: #E81A1A;">
-            Regional Office Management Division System
+            Regional Operations Management Division - System
           </h1>
           <p class="mt-4 text-lg text-gray-600">
             An office management system for employees where they can manage their tasks, track deadlines, and access various office documents.

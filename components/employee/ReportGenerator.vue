@@ -101,11 +101,11 @@ const printReport = () => {
           th.date, th.day{
             text-align: center;
             width: 25px;
-            background-color: #cfe2f3;
+            background-color: #cfe2f3; !important;
           }
           th.act, th.range{
             text-align: center;
-            background-color: #cfe2f3;
+            background-color: #cfe2f3; !important;
           }
           p {
             text-align: right;
