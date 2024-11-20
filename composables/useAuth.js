@@ -101,7 +101,7 @@ export const useAuth = () => {
         } catch (err) {
             console.error("Login error:", err);
             // Show an error message
-            error.value = err.response?.data?.message || 'Login failed. Please try again.';
+            error.value = err.response?.data?.error || 'Login failed. Please try again.';
         }
     };
 

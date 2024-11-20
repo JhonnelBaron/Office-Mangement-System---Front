@@ -48,7 +48,24 @@
                   />
                 </div>
               </div>
-  
+
+              <!-- Position -->
+              <div class="mb-4">
+              <label for="position" class="block text-sm font-medium text-gray-700">Position</label>
+              <select
+                id="position"
+                v-model="position"
+                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                required
+              >
+                <option value="" disabled selected>Select your position</option>
+                <option value="Project Support Staff I">Project Support Staff I</option>
+                <option value="Project Support Staff II">Project Support Staff II</option>
+                <option value="Project Support Staff III">Project Support Staff III</option>
+                <option value="Admin Support Staff">Admin Support Staff</option>
+              </select>
+            </div>
+
               <!-- Email -->
               <div class="mb-4">
                 <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
@@ -100,6 +117,7 @@
                 <NuxtLink to="/" class="hover:underline" style="color: #E81A1A;">Login here</NuxtLink>
               </p>
             </form>
+            <div v-if="success" class="success">{{ success }}</div>
             <div v-if="error" class="error">{{ error }}</div>
           </div>
         </div>
@@ -114,13 +132,18 @@
   
   const firstName = ref('');
   const lastName = ref('');
+  const position = ref('');
   const email = ref('');
   const password = ref('');
   const confirmPassword = ref('');
   const error = ref(null);
+  const success = ref(null); 
   const router = useRouter();
   
   const handleRegister = async () => {
+    error.value = null;
+    success.value = null;
+
     if (password.value !== confirmPassword.value) {
       error.value = 'Passwords do not match.';
       return;
@@ -129,16 +152,27 @@
     const payload = {
       first_name: firstName.value,
       last_name: lastName.value,
+      position: position.value,
       email: email.value,
       password: password.value,
     };
   
+    // try {
+    //   await registerUser(payload);
+    //   success.value = response.data.message;
+    //   router.push('/');
+    // } catch (err) {
+    //   error.value = err.response?.data?.message || 'Registration failed.';
+    // }
     try {
-      await registerUser(payload);
-      router.push('/');
-    } catch (err) {
-      error.value = err.response?.data?.message || 'Registration failed.';
-    }
+    // Call the registration API
+    const response = await registerUser(payload); // Assign the API response to a variable
+    success.value = response.data.message; // Access the message from the response
+    router.push('/'); // Redirect to the login page on successful registration
+  } catch (err) {
+    // Handle errors and display appropriate messages
+    error.value = err.response?.data?.message || 'Registration failed.';
+  }
   };
   </script>
   
@@ -147,5 +181,9 @@
     color: red;
     margin-top: 10px;
   }
+  .success {
+  color: green;
+  margin-top: 10px;
+}
   </style>
   
