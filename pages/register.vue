@@ -86,8 +86,9 @@
                   id="password"
                   type="password"
                   v-model="password"
+                  minlength="8"
                   class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  placeholder="Enter your password"
+                  placeholder="Enter your password (min. 8 characters)"
                   required
                 />
               </div>
@@ -143,6 +144,11 @@
   const handleRegister = async () => {
     error.value = null;
     success.value = null;
+
+    if (password.value.length < 8) {
+    error.value = 'Password must be at least 8 characters long.';
+    return;
+  }
 
     if (password.value !== confirmPassword.value) {
       error.value = 'Passwords do not match.';
