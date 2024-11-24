@@ -80,7 +80,7 @@
               </div>
   
               <!-- Password -->
-              <div class="mb-6">
+              <!-- <div class="mb-6">
                 <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
                 <input
                   id="password"
@@ -91,10 +91,10 @@
                   placeholder="Enter your password (min. 8 characters)"
                   required
                 />
-              </div>
+              </div> -->
   
               <!-- Confirm Password -->
-              <div class="mb-6">
+              <!-- <div class="mb-6">
                 <label for="confirmPassword" class="block text-sm font-medium text-gray-700">Confirm Password</label>
                 <input
                   id="confirmPassword"
@@ -104,7 +104,43 @@
                   placeholder="Confirm your password"
                   required
                 />
-              </div>
+              </div> -->
+              <div class="mb-6">
+              <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+              <input
+                id="password"
+                :type="showPassword ? 'text' : 'password'"
+                v-model="password"
+                minlength="8"
+                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                placeholder="Enter your password (min. 8 characters)"
+                required
+              />
+            </div>
+
+            <!-- Confirm Password -->
+            <div class="mb-6">
+              <label for="confirmPassword" class="block text-sm font-medium text-gray-700">Confirm Password</label>
+              <input
+                id="confirmPassword"
+                :type="showPassword ? 'text' : 'password'"
+                v-model="confirmPassword"
+                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                placeholder="Confirm your password"
+                required
+              />
+            </div>
+
+            <!-- Show Password Checkbox -->
+            <div class="mb-4 flex items-center">
+              <input
+                id="showPassword"
+                type="checkbox"
+                v-model="showPassword"
+                class="mr-2"
+              />
+              <label for="showPassword" class="text-sm text-gray-600">Show Password</label>
+            </div>
   
               <button
                 type="submit"
@@ -140,6 +176,13 @@
   const error = ref(null);
   const success = ref(null); 
   const router = useRouter();
+
+  const showPassword = ref(false); // Reactive state for showing password
+  
+  // Toggle password visibility
+  const togglePasswordVisibility = () => {
+    showPassword.value = !showPassword.value;
+  };
   
   const handleRegister = async () => {
     error.value = null;

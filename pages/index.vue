@@ -30,10 +30,38 @@
                                 <input id="email" type="email" v-model="email" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="Enter your email"/>
                             </div>
 
-                            <div class="mb-6">
-                                <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
-                                <input id="password" type="password" v-model="password" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="Enter your password"/>
-                            </div>
+
+                            <div class="mb-4">
+                <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+                <div class="relative">
+                  <input
+                    id="password"
+                    :type="showPassword ? 'text' : 'password'"
+                    v-model="password"
+                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    placeholder="Enter your password"
+                  />
+                  <button
+                    type="button"
+                    @click="togglePasswordVisibility"
+                    class="absolute inset-y-0 right-0 flex items-center px-3 text-sm text-gray-500 hover:text-gray-700"
+                  >
+                    {{ showPassword ? 'Hide' : 'Show' }}
+                  </button>
+                </div>
+              </div>
+
+              <!-- <div class="mb-4 flex items-center">
+                <input
+                  id="remember_me"
+                  type="checkbox"
+                  v-model="rememberMe"
+                  class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                />
+                <label for="remember_me" class="ml-2 block text-sm text-gray-900">
+                  Remember Me
+                </label>
+              </div> -->
 
                             <!-- Error Message Display -->
                             <div v-if="error" class="mb-4 error">
@@ -43,7 +71,11 @@
                             <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">Login
                             </button>
 
-                            <p class="mt-4 text-sm text-center text-gray-600">Forgot your password? <a href="#" class="hover:underline" style="color: #E81A1A;">Click here</a></p>
+                            <p class="mt-4 text-sm text-center text-gray-600">
+                            Forgot your password? 
+                            <NuxtLink to="/reset-password" class="hover:underline" style="color: #E81A1A;">Click here</NuxtLink>
+                            </p>
+
                             <p class="mt-4 text-center">
                                 <NuxtLink to="/register" class="hover:underline" style="color: #E81A1A;">Register</NuxtLink>
                             </p>
@@ -59,6 +91,11 @@
 import { useAuth } from '@/composables/useAuth';
 
 const { email, password, error, handleLogin } = useAuth();
+const showPassword = ref(false); // Control password visibility
+// Toggle password visibility
+const togglePasswordVisibility = () => {
+  showPassword.value = !showPassword.value;
+};
 
 </script>
 
