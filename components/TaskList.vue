@@ -1,6 +1,10 @@
 <template>
     <div class="bg-gray-100 min-h-screen p-6">
       <div class="container mx-auto">
+         <!-- Message for Tasks -->
+      <div v-if="tasks.length" class="text-center text-gray-700 font-semibold mb-4">
+        <p>Eto na nga pala yung ambag mo</p>
+      </div>
         <!-- Task List Container -->
         <div v-if="tasks.length" class="space-y-4">
           <div
@@ -54,7 +58,8 @@
   
         <!-- Message for No Tasks -->
         <div v-else class="text-center text-gray-500 mt-8">
-          <p>No tasks available.</p>
+          <p>Ayy.. wala ka pang ambag? :(</p>
+          <br><p>baka namannn</p>
         </div>
   
         <!-- Edit Task Modal -->

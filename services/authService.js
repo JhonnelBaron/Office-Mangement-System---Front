@@ -31,6 +31,9 @@ export const loginUser = async (credentials) => {
     const user = {
       user_type: response.data.user_type,   // Store user_type as part of user object
       time_in: response.data.time_in,       // Store any other necessary fields (like time_in)
+      first_name: response.data.first_name,
+      last_name: response.data.last_name,
+      position: response.data.position,
     };
     const redirectUrl = response.data.redirect_to;  // Redirect URL after login
 

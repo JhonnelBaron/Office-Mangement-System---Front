@@ -1,7 +1,7 @@
 <template>
     <div>
-        <h2>Welcome!!</h2>
-        <p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Rem, minus pariatur mollitia id, quasi quisquam fugiat ex labore inventore quibusdam dolore, impedit hic! Alias, culpa ab ipsam nihil sunt soluta.</p>
+        <h2>Hi, {{userName}}!!</h2>
+        <p>Mag aambag ka ba ngayon sa gobyerno? </p>
         <!-- <calendar /> -->
         <TimeIn />
     </div>
@@ -13,6 +13,23 @@ import TimeIn from '@/components/employee/TimeIn.vue';
         layout: 'employee'
 
     })
+
+    const userName = ref('');
+
+onMounted(() => {
+  // Ensure the code only runs on the client side
+  if (process.client) {
+    const userString = localStorage.getItem('user');
+    const user = userString ? JSON.parse(userString) : null;
+
+    if (user && user.first_name) {
+      userName.value = user.first_name; // Retrieve and set the first name
+    } else {
+      userName.value = 'Guest'; // Fallback in case user is not logged in or first_name is missing
+    }
+  }
+});
+
 </script>
 
 <style scoped>
