@@ -137,29 +137,58 @@ onMounted(() => {
 });
 
 // Function to update filtered attendance based on selected date and status
-const updateFilteredAttendance = () => {
-  // Start by mapping through employees instead of attendance
-  filteredAttendance.value = employees.value.map((employee) => {
-    // Find the corresponding attendance record for the current employee
-    const attendanceRecord = attendance.value.find(item => item.user_id === employee.id && item.date.includes(filterDate.value));
+// const updateFilteredAttendance = () => {
+//   // Start by mapping through employees instead of attendance
+//   filteredAttendance.value = employees.value.map((employee) => {
+//     // Find the corresponding attendance record for the current employee
+//     const attendanceRecord = attendance.value.find(item => item.user_id === employee.id && item.date.includes(filterDate.value));
 
-    // Return a new object that includes employee name and attendance details
+//     // Return a new object that includes employee name and attendance details
+//     return {
+//       employeeName: `${employee.first_name} ${employee.last_name}`,
+//       status: attendanceRecord ? attendanceRecord.status : 'absent', // Default to 'absent' if no record found
+//       time_in: attendanceRecord ? attendanceRecord.time_in : '--', // Default to '--' if no record found
+//       time_out: attendanceRecord ? attendanceRecord.time_out : '--', // Default to '--' if no record found
+//       score: attendanceRecord ? attendanceRecord.score : 0 // Default score to 0 if no record found
+//     };
+//   }).filter((item) => {
+//     const matchesStatus = selectedFilter.value === 'all' || 
+//       (selectedFilter.value === 'onTime' && (item.status === 'early' || item.status === 'exactly')) ||
+//       (selectedFilter.value === 'late' && item.status === 'late') ||
+//       (selectedFilter.value === 'absent' && item.status === 'absent');
+
+//     return matchesStatus; // Only filter based on status now
+//   });
+// };
+const updateFilteredAttendance = () => {
+  filteredAttendance.value = employees.value.map((employee) => {
+    const attendanceRecord = attendance.value.find(
+      (item) =>
+        item.user_id === employee.id && item.date.includes(filterDate.value)
+    );
+
     return {
       employeeName: `${employee.first_name} ${employee.last_name}`,
-      status: attendanceRecord ? attendanceRecord.status : 'absent', // Default to 'absent' if no record found
-      time_in: attendanceRecord ? attendanceRecord.time_in : '--', // Default to '--' if no record found
-      time_out: attendanceRecord ? attendanceRecord.time_out : '--', // Default to '--' if no record found
-      score: attendanceRecord ? attendanceRecord.score : 0 // Default score to 0 if no record found
+      status: attendanceRecord
+        ? attendanceRecord.status === 'early' || attendanceRecord.status === 'exactly'
+          ? 'On Time'
+          : attendanceRecord.status
+        : 'absent',
+      time_in: attendanceRecord ? attendanceRecord.time_in : '--',
+      time_out: attendanceRecord ? attendanceRecord.time_out : '--',
+      score: attendanceRecord ? attendanceRecord.score : 0,
     };
   }).filter((item) => {
-    const matchesStatus = selectedFilter.value === 'all' || 
-      (selectedFilter.value === 'onTime' && (item.status === 'early' || item.status === 'exactly')) ||
+    const matchesStatus =
+      selectedFilter.value === 'all' ||
+      (selectedFilter.value === 'onTime' && item.status === 'On Time') ||
       (selectedFilter.value === 'late' && item.status === 'late') ||
       (selectedFilter.value === 'absent' && item.status === 'absent');
 
-    return matchesStatus; // Only filter based on status now
+    return matchesStatus;
   });
 };
+
 
 // Function to count present, absent, and late attendees
 const presentCount = computed(() => 
@@ -174,10 +203,16 @@ const absentCount = computed(() =>
   filteredAttendance.value.filter(item => item.status === 'absent').length
 );
 
-const lateCount = computed(() => 
-  attendance.value.filter(a => a.date.includes(filterDate.value) && (a.status === 'late' || a.status === 'early' || a.status === 'exactly')).length
+// const lateCount = computed(() => 
+//   attendance.value.filter(a => a.date.includes(filterDate.value) && (a.status === 'late' || a.status === 'early' || a.status === 'exactly')).length
+// );
+const lateCount = computed(() =>
+  attendance.value.filter(
+    (a) =>
+      a.date.includes(filterDate.value) &&
+      a.status === 'late' // Only count 'late' status
+  ).length
 );
-
 // Helper function to assign status classes for colors
 const getStatusClass = (status) => {
   switch (status) {
