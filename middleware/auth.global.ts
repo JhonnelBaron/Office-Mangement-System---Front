@@ -14,7 +14,7 @@ export default defineNuxtRouteMiddleware((to, from) => {
     // If the user is not authenticated, allow access to the login page ("/")
     if (!token || !user) {
       // Allow unauthenticated users to access login or register pages
-      if (to.path === '/register' || to.path === '/' || to.path === '/reset-password' || to.path === '/update-password') {
+      if (to.path === '/register' || to.path === '/' || to.path === '/reset-password' || to.path === '/update-password' || to.path === '/login' || to.path === '/camtest') {
         // Allow access to register or login page
         return;
       } else {

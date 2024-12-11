@@ -5,7 +5,10 @@
       <ReportGenerator :tasks="filteredTasks" :cutoffDateRange="cutoffDateRange" :selectedCutoff="selectedCutoff" />
 
       <!-- Add Task Text Link with Plus Icon -->
-      <div class="flex items-center cursor-pointer text-blue-600 hover:underline" @click="openModal">
+      <div class="flex items-center cursor-pointer text-blue-600 hover:underline"   :class="{ 'text-gray-400 cursor-not-allowed': hasInProgressTask }"
+  @click="handleAddTaskClick"
+  :disabled="hasInProgressTask"
+>
         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
         </svg>
@@ -66,38 +69,104 @@
     </div>
 
     <!-- Modal for Adding Task -->
-    <div v-if="showModal" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center">
-      <div class="bg-white p-6 rounded-lg w-full max-w-md">
-        <h3 class="text-lg font-bold mb-4">Add New Task</h3>
+<!-- Modal for Adding Task -->
+<div v-if="showModal" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center">
+  <div class="bg-white p-6 rounded-lg w-full max-w-4xl"> <!-- Increased max-width for better spacing -->
+    <h3 class="text-lg font-bold mb-4">Add New Task</h3>
 
-        <form @submit.prevent="addTask">
+    <form @submit.prevent="addTask">
+      <!-- Two-column grid layout -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Column 1 -->
+        <div>
+          <!-- PAPs Dropdown -->
           <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700">Task Title</label>
-            <input v-model="newTaskTitle" class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="Enter task title" required>
+            <label class="block text-sm font-medium text-gray-700">PAPs</label>
+            <select v-model="newTaskPaps" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+              <option value="Program">Program</option>
+              <option value="Activities">Activities</option>
+              <option value="Projects">Projects</option>
+            </select>
           </div>
 
+          <!-- Task Title -->
           <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700">Description</label>
-            <textarea v-model="newTaskDescription" class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="Enter task description" rows="3"></textarea>
+            <label class="block text-sm font-medium text-gray-700">Task</label>
+            <input v-model="newTaskTitle" class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="Enter task (e.g. MOA Review)" required>
           </div>
 
+          <!-- Type Dropdown -->
           <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700">Link (Optional)</label>
-            <input v-model="newTaskLink" type="url" class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="Enter related link">
+            <label class="block text-sm font-medium text-gray-700">Document Type</label>
+            <select v-model="newTaskType" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+              <option value="CSW">CSW</option>
+              <option value="Memo">Memo</option>
+              <option value="MOA">MOA</option>
+              <option value="Letter">Letter</option>
+              <option value="MoM">MoM</option>
+              <option value="Email">Email</option>
+              <option value="Others">Others</option>
+            </select>
+            <div v-if="newTaskType === 'Others'" class="mt-2">
+              <input v-model="newTaskOtherType" class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="Enter document type">
+            </div>
           </div>
 
-          <div class="flex justify-end">
-            <button type="button" @click="closeModal" class="text-gray-500 mr-4">Cancel</button>
-            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">Add Task</button>
+          <!-- Task Dropdown -->
+          <!-- <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700">Task</label>
+            <select v-model="newTaskStatus" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+              <option value="Draft">Draft</option>
+              <option value="Revised">Revised</option>
+              <option value="Finalize">Finalize</option>
+              <option value="Consolidate">Consolidate</option>
+              <option value="Design">Design</option>
+              <option value="Others">Others</option>
+            </select>
+            <div v-if="newTaskStatus === 'Others'" class="mt-2">
+              <input v-model="newTaskOtherStatus" class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="Enter status">
+            </div>
+          </div> -->
+
+          <!-- Description -->
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700">Subject</label>
+            <textarea v-model="newTaskDescription" class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="Enter task description (e.g. MOA between TESDA & Philippine Army)" rows="3"></textarea>
           </div>
-        </form>
+        </div>
+
+        <!-- Column 2 -->
+        <div>
+          <!-- Number of Documents -->
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700">Number of Documents</label>
+            <input v-model="newTaskNoOfDocuments" type="number" min="0" class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="Enter number of documents" required>
+          </div>
+
+          <!-- Document Links -->
+          <div>
+            <div v-for="n in newTaskNoOfDocuments" :key="n" class="mb-4">
+              <label class="block text-sm font-medium text-gray-700">References {{ n }}</label>
+              <input v-model="newTaskDocumentLinks[n-1]" type="url" class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="Enter document link">
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
+
+      <!-- Actions -->
+      <div class="flex justify-end mt-4">
+        <button type="button" @click="closeModal" class="text-gray-500 mr-4">Cancel</button>
+        <button type="submit" :disabled="isSubmitting" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"><span v-if="isSubmitting">Submitting...</span> <span v-else>Add Task</span></button>
+      </div>
+    </form>
+  </div>
+</div>
+
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, reactive } from 'vue';
 import TaskList from '@/components/TaskList.vue';
 import ReportGenerator from '@/components/employee/ReportGenerator.vue';
 import { addTask as addTaskService, getTasks } from '@/services/taskService';
@@ -116,6 +185,21 @@ const showModal = ref(false);
 const newTaskTitle = ref('');
 const newTaskDescription = ref('');
 const newTaskLink = ref('');
+const newTaskPaps = ref('Program');
+const newTaskType = ref('CSW');
+const newTaskOtherType = ref('');
+const newTaskStatus = ref('Draft');
+const newTaskOtherStatus = ref('');
+const newTaskNoOfDocuments = ref(0);
+const newTaskDocumentLinks = ref([]);
+const isSubmitting = ref(false); // New state to track if the form is being submitted
+
+import Swal from 'sweetalert2';
+
+let successMessageTimer = null; // Declare the timer variable globally
+
+
+
 const getMonthName = (monthIndex) => {
   const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
   return months[monthIndex];
@@ -172,6 +256,21 @@ const determineDefaultCutoff = () => {
 };
 
 
+const showSuccessMessage = (message) => {
+  Swal.fire({
+    icon: 'success',
+    title: 'Success',
+    text: message,
+    timer: 2000,
+    showConfirmButton: false,
+  }).then(() => {
+    if (successMessageTimer) {
+      clearTimeout(successMessageTimer);
+    }
+  });
+};
+
+
 
 // Automatically set and update the default cutoff when component mounts
 onMounted(() => {
@@ -208,7 +307,7 @@ const fetchTasks = async () => {
 };
 
 const handleTaskUpdate = async (updatedTask) => {
-  console.log("Updated Task:", updatedTask);
+  // console.log("Updated Task:", updatedTask);
   
   // Optionally, update the task list locally or re-fetch tasks
   await fetchTasks();
@@ -221,29 +320,65 @@ const openModal = () => {
 };
 
 // Function to close the modal
+// const closeModal = () => {
+//   showModal.value = false;
+//   newTaskTitle.value = '';
+//   newTaskDescription.value = '';
+//   newTaskLink.value = '';
+// };
 const closeModal = () => {
   showModal.value = false;
+  resetTaskFields();
+};
+
+// Reset the task fields after submission
+const resetTaskFields = () => {
   newTaskTitle.value = '';
   newTaskDescription.value = '';
   newTaskLink.value = '';
+  newTaskPaps.value = 'Program';
+  newTaskType.value = 'CSW';
+  newTaskOtherType.value = '';
+  newTaskStatus.value = 'Draft';
+  newTaskOtherStatus.value = '';
+  newTaskNoOfDocuments.value = 0;
+  newTaskDocumentLinks.value = [];
 };
-
 // Function to add a new task
 const addTask = async () => {
+
+  const finalTaskType =
+  newTaskType.value === "Others" ? newTaskOtherType.value : newTaskType.value;
+
+  const finalTaskStatus =
+  newTaskStatus.value === "Others" ? newTaskOtherStatus.value : newTaskStatus.value;
+
   const task = {
     title: newTaskTitle.value,
     description: newTaskDescription.value,
     link: newTaskLink.value || null,
+    paps: newTaskPaps.value,
+    type: finalTaskType,
+    task: finalTaskStatus,
+    no_of_document: newTaskNoOfDocuments.value,
+    document_links: newTaskDocumentLinks.value,
   };
+
+    // Set the isSubmitting state to true before starting the task submission
+    isSubmitting.value = true;
 
   try {
     const newTask = await addTaskService(task);
-    taskData.value.push(newTask);
-    filteredTasks.value.push(newTask);
+    // taskData.value.push(newTask);
+    // filteredTasks.value.push(newTask);
+    showSuccessMessage('Task has been added successfully!');
+    resetTaskFields();
     await fetchTasks(); 
     closeModal();
   } catch (error) {
     console.error('Error adding task:', error);
+  } finally{
+    isSubmitting.value = false;
   }
 };
 
@@ -311,6 +446,22 @@ const updateFilteredTasks = () => {
 // Function to print accomplishment report
 const printAccomplishmentReport = () => {
   window.print();
+};
+
+const hasInProgressTask = computed(() => {
+  return filteredTasks.value.some((task) => task.status === "In Progress");
+});
+
+const handleAddTaskClick = () => {
+  if (hasInProgressTask.value) {
+    Swal.fire({
+      icon: "warning",
+      title: "You have an ongoing task",
+      text: "Finish it first to be able to add a new one.",
+    });
+  } else {
+    openModal(); // Proceed to open the modal
+  }
 };
 </script>
 

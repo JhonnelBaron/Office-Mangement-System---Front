@@ -1,7 +1,7 @@
 <template>
     <div>
-        <h2>Hi, {{userName}}!!</h2>
-        <p>Mag aambag ka ba ngayon sa gobyerno? </p>
+      <h2 class="text-3xl font-bold">Hi, {{userName}}!!</h2>
+        <p class="text-xl">Mag aambag ka ba ngayon sa gobyerno?</p>
         <!-- <calendar /> -->
         <TimeIn />
     </div>
