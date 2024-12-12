@@ -241,13 +241,17 @@ const editTask = async (task) => {
     if (response.status === 200) {
       const data = response.data;
 
+      const predefinedTypes = ['CSW', 'Memo', 'MOA', 'Letter', 'MoM', 'Email'];
+
+
       // Populate `editedTask` with the response data
       editedTask.value = {
         id: data.id,
         title: data.title,
         description: data.description,
         status: data.status,
-        type: data.type,
+        type: predefinedTypes.includes(data.type) ? data.type : 'Others',
+        otherType: predefinedTypes.includes(data.type) ? '' : data.type,
         paps: data.paps,
         no_of_document: data.no_of_document,
         document_links: data.document_links.map(linkObj => linkObj.document_link), // Handle array
@@ -281,6 +285,11 @@ const updateTask = async () => {
       ...editedTask.value,
       document_links: formattedDocumentLinks,
     };
+
+    // Determine final type for payload
+    const finalTaskType = editedTask.value.type === "Others" ? editedTask.value.otherType : editedTask.value.type;
+    payload.type = finalTaskType;
+
     await updateTaskService(editedTask.value.id, payload);
     emit('updateTasks', editedTask.value);
     closeEditModal();

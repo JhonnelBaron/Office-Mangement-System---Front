@@ -337,8 +337,12 @@ const resetTaskFields = () => {
   newTaskDescription.value = '';
   newTaskLink.value = '';
   newTaskPaps.value = 'Program';
-  newTaskType.value = 'CSW';
-  newTaskOtherType.value = '';
+  if (newTaskType.value === 'Others') {
+    newTaskType.value = 'Others';
+    newTaskOtherType.value = ''; // Clear the custom type input
+  } else {
+    newTaskType.value; // Or any default value
+  }
   newTaskStatus.value = 'Draft';
   newTaskOtherStatus.value = '';
   newTaskNoOfDocuments.value = 0;
