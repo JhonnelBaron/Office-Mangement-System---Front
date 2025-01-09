@@ -45,7 +45,7 @@
     <div class="p-4 bg-blue-500 text-white rounded-t">
       <h3 class="text-lg font-bold">Time Log</h3>
     </div>
-    <div class="overflow-y-auto max-h-full p-4">
+    <div class="overflow-y-auto max-h-96 p-4">
       <table class="table-auto w-full text-sm text-gray-700 dark:text-gray-300">
         <thead class="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-200">
           <tr>
