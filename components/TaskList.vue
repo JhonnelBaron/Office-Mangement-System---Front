@@ -66,7 +66,13 @@
               >
                 {{ task.status }}
               </span>
-              <button @click="editTask(task)" class="text-blue-600 hover:underline">Edit</button>
+              <button     
+                @click="editTask(task)"
+                :disabled="task.status === 'Done'"
+                :class="{ 'text-gray-500 cursor-not-allowed': task.status === 'Done', 'text-blue-600 hover:underline': task.status !== 'Done' }"
+                  >
+                  Edit
+              </button>
             </div>
           </div>
         </div>

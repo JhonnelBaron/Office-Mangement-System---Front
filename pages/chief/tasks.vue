@@ -104,8 +104,8 @@
               </ul>
             </td>
             <td class="border border-gray-300 px-4 py-2">
-              <span>{{ totalHoursWorked(filteredTasks(user.tasks, filterDate)).totalHours }} hours 
-                {{ totalHoursWorked(filteredTasks(user.tasks, filterDate)).totalMinutes }} minutes</span>
+              <span>{{ totalHoursWorked(filteredTasks(user.tasks, filterDate)).totalHours }} hour/s  
+                 {{ totalHoursWorked(filteredTasks(user.tasks, filterDate)).totalMinutes }} minutes</span>
             </td>
           </tr>
         </tbody>

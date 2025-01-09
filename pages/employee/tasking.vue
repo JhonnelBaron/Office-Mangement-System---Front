@@ -80,14 +80,14 @@
         <!-- Column 1 -->
         <div>
           <!-- PAPs Dropdown -->
-          <div class="mb-4">
+          <!-- <div class="mb-4">
             <label class="block text-sm font-medium text-gray-700">PAPs</label>
             <select v-model="newTaskPaps" class="w-full px-3 py-2 border border-gray-300 rounded-md">
               <option value="Program">Program</option>
               <option value="Activities">Activities</option>
               <option value="Projects">Projects</option>
             </select>
-          </div>
+          </div> -->
 
           <!-- Task Title -->
           <div class="mb-4">
@@ -131,7 +131,7 @@
           <!-- Description -->
           <div class="mb-4">
             <label class="block text-sm font-medium text-gray-700">Subject</label>
-            <textarea v-model="newTaskDescription" class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="Enter task description (e.g. MOA between TESDA & Philippine Army)" rows="3"></textarea>
+            <textarea v-model="newTaskDescription" class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="Enter task description (e.g. MOA between TESDA & Philippine Army)" rows="3" required></textarea>
           </div>
         </div>
 
@@ -147,7 +147,7 @@
           <div>
             <div v-for="n in newTaskNoOfDocuments" :key="n" class="mb-4">
               <label class="block text-sm font-medium text-gray-700">References {{ n }}</label>
-              <input v-model="newTaskDocumentLinks[n-1]" type="url" class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="Enter document link">
+              <input v-model="newTaskDocumentLinks[n-1]" type="url" class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="Enter document link" >
             </div>
           </div>
         </div>
