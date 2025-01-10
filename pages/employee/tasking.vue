@@ -80,14 +80,14 @@
         <!-- Column 1 -->
         <div>
           <!-- PAPs Dropdown -->
-          <!-- <div class="mb-4">
+          <div class="mb-4">
             <label class="block text-sm font-medium text-gray-700">PAPs</label>
             <select v-model="newTaskPaps" class="w-full px-3 py-2 border border-gray-300 rounded-md">
               <option value="Program">Program</option>
               <option value="Activities">Activities</option>
               <option value="Projects">Projects</option>
             </select>
-          </div> -->
+          </div>
 
           <!-- Task Title -->
           <div class="mb-4">
