@@ -62,3 +62,19 @@ export const addTask = async (taskData) => {
     throw error.response?.data?.message || 'Failed to fetch task data';
   }
 };
+
+export const getUser = async () => {
+  const { $api } = useNuxtApp();
+  const token = localStorage.getItem('auth_token');
+
+  try {
+    const response = await $api.get('/user', {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    return response.data;
+  } catch (error) {
+    throw error.response?.data?.message || 'User retrieval failed';
+  }
+};
