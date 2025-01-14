@@ -2,7 +2,8 @@
   <div class="p-6">
     <div class="flex justify-between items-center mb-6">
       <h2 class="text-2xl font-bold">Tasking</h2>
-      <ReportGenerator :tasks="filteredTasks" :cutoffDateRange="cutoffDateRange" :selectedCutoff="selectedCutoff" />
+      <div class="ml-[800px] mt-0 hover:underline"> <ReportGenerator :tasks="filteredTasks" :cutoffDateRange="cutoffDateRange" :selectedCutoff="selectedCutoff" />
+      </div>
 
       <!-- Add Task Text Link with Plus Icon -->
       <div class="flex items-center cursor-pointer text-blue-600 hover:underline"   :class="{ 'text-gray-400 cursor-not-allowed': hasInProgressTask }"
@@ -64,9 +65,9 @@
     <TaskList :tasks="filteredTasks" @updateTasks="handleTaskUpdate" />
 
     <!-- "Print Accomplishment Report" Link -->
-    <div class="mt-8">
+    <!-- <div class="mt-8">
       <a href="#" @click.prevent="printAccomplishmentReport" class="text-blue-600 hover:underline">Print Accomplishment Report</a>
-    </div>
+    </div> -->
 
     <!-- Modal for Adding Task -->
 <!-- Modal for Adding Task -->
@@ -448,9 +449,9 @@ const updateFilteredTasks = () => {
 };
 
 // Function to print accomplishment report
-const printAccomplishmentReport = () => {
-  window.print();
-};
+// const printAccomplishmentReport = () => {
+//   window.print();
+// };
 
 const hasInProgressTask = computed(() => {
   return filteredTasks.value.some((task) => task.status === "In Progress");
