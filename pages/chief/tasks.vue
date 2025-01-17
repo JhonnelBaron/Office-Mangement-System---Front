@@ -71,7 +71,7 @@
           <tr>
             <th class="border border-gray-300 px-4 py-2 text-left font-medium" style="width: 50px;">Employee</th>
             <th class="border border-gray-300 px-4 py-2 text-left font-medium" style="width: 500px;">Tasks Assigned</th>
-            <th class="border border-gray-300 px-4 py-2 text-left font-medium" style="width: 150px;">Total Hours Worked</th>
+            <th class="border border-gray-300 px-4 py-2 text-left font-medium" style="width: 150px;">Total Hours</th>
           </tr>
         </thead>
         <tbody>
@@ -104,9 +104,21 @@
               </ul>
             </td>
             <td class="border border-gray-300 px-4 py-2">
-              <span>{{ totalHoursWorked(filteredTasks(user.tasks, filterDate)).totalHours }} hour/s  
-                 {{ totalHoursWorked(filteredTasks(user.tasks, filterDate)).totalMinutes }} minutes</span>
-            </td>
+              <span>
+              {{ 
+                totalHoursWorked(filteredTasks(user.tasks, filterDate)).totalHours > 0 
+                  ? totalHoursWorked(filteredTasks(user.tasks, filterDate)).totalHours + 
+                    (totalHoursWorked(filteredTasks(user.tasks, filterDate)).totalHours === 1 ? ' hour ' : ' hours ') 
+                  : '' 
+              }}
+              {{ 
+                totalHoursWorked(filteredTasks(user.tasks, filterDate)).totalMinutes > 0 
+                  ? totalHoursWorked(filteredTasks(user.tasks, filterDate)).totalMinutes + 
+                    (totalHoursWorked(filteredTasks(user.tasks, filterDate)).totalMinutes === 1 ? ' minute' : ' minutes') 
+                  : '' 
+              }}
+            </span>
+          </td>
           </tr>
         </tbody>
       </table>
