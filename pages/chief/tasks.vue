@@ -103,7 +103,6 @@
                     </li>
                   </ul>
                 </div>
-                <p v-else>No links available.</p>
                 </li>
                 <li v-if="filteredTasks(user.tasks, filterDate).length === 0" class="text-gray-500">No tasks for this date.</li>
               </ul>
