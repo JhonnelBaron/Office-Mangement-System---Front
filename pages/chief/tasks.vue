@@ -96,9 +96,14 @@
                     </span>
                   </p>
                 </div>
-                <p v-if="task.link" class="text-blue-600">
-                    <a :href="task.link" target="_blank">View Document</a>
-                  </p>
+                <div v-if="task.links && task.links.length">
+                  <ul>
+                    <li v-for="(link, index) in task.links" :key="index">
+                      <a :href="link" target="_blank" class="text-blue-600" :title="link">View Document</a>
+                    </li>
+                  </ul>
+                </div>
+                <p v-else>No links available.</p>
                 </li>
                 <li v-if="filteredTasks(user.tasks, filterDate).length === 0" class="text-gray-500">No tasks for this date.</li>
               </ul>
@@ -193,7 +198,7 @@
             done: task.status === 'Done',
             hours: task.hours_worked,
             date: task.date_added,
-            link: task.link
+            links: task.links
           });
         } else {
           acc.push({
@@ -207,7 +212,7 @@
                 done: task.status === 'Done',
                 hours: task.hours_worked,
                 date: task.date_added,
-                link: task.link
+                links: task.links
               },
             ],
           });
