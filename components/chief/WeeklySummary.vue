@@ -168,12 +168,37 @@ selectedWeek.value = currentWeekNumber();
 
 
 
-const filteredEmployeeAttendance = computed(() => {
-  const startDate = new Date(new Date().getFullYear(), selectedMonth.value, (selectedWeek.value * 7) + 1);
-  const endDate = new Date(new Date().getFullYear(), selectedMonth.value, (selectedWeek.value + 1) * 7);
+// const filteredEmployeeAttendance = computed(() => {
+//   const startDate = new Date(new Date().getFullYear(), selectedMonth.value, (selectedWeek.value * 7) + 1);
+//   const endDate = new Date(new Date().getFullYear(), selectedMonth.value, (selectedWeek.value + 1) * 7);
   
+//   return employees.value.map(employee => {
+//     const records = attendance.value.filter(record => record.user_id === employee.id && new Date(record.date) >= startDate && new Date(record.date) < endDate);
+//     return {
+//       employee,
+//       attendance: {
+//         Mon: records.find(r => r.date === getDateOfWeek(1)) || {},
+//         Tue: records.find(r => r.date === getDateOfWeek(2)) || {},
+//         Wed: records.find(r => r.date === getDateOfWeek(3)) || {},
+//         Thu: records.find(r => r.date === getDateOfWeek(4)) || {},
+//         Fri: records.find(r => r.date === getDateOfWeek(5)) || {}
+//       }
+//     };
+//   });
+// });
+const filteredEmployeeAttendance = computed(() => {
   return employees.value.map(employee => {
-    const records = attendance.value.filter(record => record.user_id === employee.id && new Date(record.date) >= startDate && new Date(record.date) < endDate);
+    const records = attendance.value.filter(record => 
+      record.user_id === employee.id &&
+      [
+        getDateOfWeek(1),
+        getDateOfWeek(2),
+        getDateOfWeek(3),
+        getDateOfWeek(4),
+        getDateOfWeek(5)
+      ].includes(record.date) // Compare with mm-dd-yyyy format
+    );
+
     return {
       employee,
       attendance: {
@@ -200,7 +225,10 @@ const getDateOfWeek = (dayOffset) => {
   const date = new Date(year, month, 1 + weekStartDay + dayOffset); // Adjust date calculation
 
   // Return the formatted date (ISO format)
-  return date.toLocaleDateString('en-CA');
+  // return date.toLocaleDateString('en-CA');
+  const formattedDate = `${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}-${date.getFullYear()}`;
+
+return formattedDate; // mm-dd-yyyy
 };
 
 const getDayOfMonth = (dayOffset) => {
@@ -220,6 +248,11 @@ const getDayOfMonth = (dayOffset) => {
 
   return startOfWeek.getDate(); // Return the day of the month
 };
+
+// const getDayOfMonth = (dayOffset) => {
+//   const fullDate = getDateOfWeek(dayOffset);
+//   return fullDate.split('-')[1]; // Extract day (dd) from mm-dd-yyyy
+// };
 
   // Function to fetch attendance data
   const fetchEmployees = async () => {
@@ -291,15 +324,21 @@ onMounted(() => {
 const calculateAverage = (attendance) => {
   // Convert time_in to total minutes from midnight (00:00) for averaging
   const totalMinutes = Object.values(attendance).reduce((sum, record) => {
-    if (record.time_in) {
-      const [hours, minutes] = record.time_in.split(':').map(Number); // Split time_in into hours and minutes
+    if (record.time_in && record.time_in !== '-') {
+      const [time, modifier] = record.time_in.split(' '); // Split into time and AM/PM
+      let [hours, minutes] = time.split(':').map(Number);
+
+      // Convert 12-hour format to 24-hour format
+      if (modifier === 'PM' && hours < 12) hours += 12;
+      if (modifier === 'AM' && hours === 12) hours = 0;
+
       return sum + (hours * 60) + minutes; // Convert to minutes and add to sum
     }
     return sum;
   }, 0);
 
   // Count the number of days the employee has time_in data (for averaging)
-  const daysPresent = Object.values(attendance).filter(record => record.time_in).length;
+  const daysPresent = Object.values(attendance).filter(record => record.time_in && record.time_in !== '-').length;
 
   if (daysPresent === 0) return '-'; // Return '-' if no attendance data is available
 
@@ -310,9 +349,14 @@ const calculateAverage = (attendance) => {
   const averageHours = Math.floor(averageMinutes / 60);
   const averageRemainingMinutes = Math.floor(averageMinutes % 60);
 
-  // Format the average time as HH:MM
-  return `${String(averageHours).padStart(2, '0')}:${String(averageRemainingMinutes).padStart(2, '0')}`;
+  // Determine AM/PM and convert back to 12-hour format
+  const period = averageHours >= 12 ? 'PM' : 'AM';
+  const formattedHours = averageHours % 12 === 0 ? 12 : averageHours % 12;
+
+  // Format the average time as HH:MM AM/PM
+  return `${String(formattedHours).padStart(2, '0')}:${String(averageRemainingMinutes).padStart(2, '0')} ${period}`;
 };
+
 
 const calculateAverageScore = (attendance) => {
   // Calculate total score and count the number of valid days with a score
