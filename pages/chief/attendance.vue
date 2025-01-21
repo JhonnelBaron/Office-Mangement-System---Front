@@ -125,46 +125,22 @@ const fetchEmployees = async () => {
 const fetchAttendance = async () => {
   try {
     attendance.value = await getAttendance();
- updateFilteredAttendance(); 
+    updateFilteredAttendance(); 
   } catch (error) {
     console.error('Error fetching attendance:', error);
   }
 };
 
-
 onMounted(() => {
   fetchEmployees().then(fetchAttendance); // Ensure attendance is fetched after employees
 });
 
-// Function to update filtered attendance based on selected date and status
-// const updateFilteredAttendance = () => {
-//   // Start by mapping through employees instead of attendance
-//   filteredAttendance.value = employees.value.map((employee) => {
-//     // Find the corresponding attendance record for the current employee
-//     const attendanceRecord = attendance.value.find(item => item.user_id === employee.id && item.date.includes(filterDate.value));
-
-//     // Return a new object that includes employee name and attendance details
-//     return {
-//       employeeName: `${employee.first_name} ${employee.last_name}`,
-//       status: attendanceRecord ? attendanceRecord.status : 'absent', // Default to 'absent' if no record found
-//       time_in: attendanceRecord ? attendanceRecord.time_in : '--', // Default to '--' if no record found
-//       time_out: attendanceRecord ? attendanceRecord.time_out : '--', // Default to '--' if no record found
-//       score: attendanceRecord ? attendanceRecord.score : 0 // Default score to 0 if no record found
-//     };
-//   }).filter((item) => {
-//     const matchesStatus = selectedFilter.value === 'all' || 
-//       (selectedFilter.value === 'onTime' && (item.status === 'early' || item.status === 'exactly')) ||
-//       (selectedFilter.value === 'late' && item.status === 'late') ||
-//       (selectedFilter.value === 'absent' && item.status === 'absent');
-
-//     return matchesStatus; // Only filter based on status now
-//   });
-// };
 const updateFilteredAttendance = () => {
   filteredAttendance.value = employees.value.map((employee) => {
     const attendanceRecord = attendance.value.find(
       (item) =>
-        item.user_id === employee.id && item.date.includes(filterDate.value)
+        item.user_id === employee.id &&
+        new Date(item.date).toLocaleDateString('en-CA') === filterDate.value // Use exact date comparison
     );
 
     return {
@@ -189,30 +165,23 @@ const updateFilteredAttendance = () => {
   });
 };
 
-
 // Function to count present, absent, and late attendees
 const presentCount = computed(() => 
-  attendance.value.filter(a => a.date.includes(filterDate.value) && a.status !== 'absent').length
+  attendance.value.filter(a => new Date(a.date).toLocaleDateString('en-CA') === filterDate.value && a.status !== 'absent').length
 );
-
-// const absentCount = computed(() => 
-//   attendance.value.filter(a => a.date.includes(filterDate.value) && a.status === 'absent').length
-// );
 
 const absentCount = computed(() => 
   filteredAttendance.value.filter(item => item.status === 'absent').length
 );
 
-// const lateCount = computed(() => 
-//   attendance.value.filter(a => a.date.includes(filterDate.value) && (a.status === 'late' || a.status === 'early' || a.status === 'exactly')).length
-// );
 const lateCount = computed(() =>
   attendance.value.filter(
     (a) =>
-      a.date.includes(filterDate.value) &&
+      new Date(a.date).toLocaleDateString('en-CA') === filterDate.value &&
       a.status === 'late' // Only count 'late' status
   ).length
 );
+
 // Helper function to assign status classes for colors
 const getStatusClass = (status) => {
   switch (status) {
@@ -233,9 +202,8 @@ const formatDate = (dateString) => {
   return new Date(dateString).toLocaleDateString(undefined, options);
 };
 
-// Fetch attendance data when component is mounted
-// onMounted(fetchAttendance);
 </script>
+
 
 <style scoped>
 /* Add any necessary custom styles */
