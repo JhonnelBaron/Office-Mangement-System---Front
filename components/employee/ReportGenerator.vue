@@ -395,7 +395,7 @@ const printReport = () => {
           <p class="prep">Prepared by:</p>
           <p class="line">_____________________</p>
           <p class="name">${firstName.value} ${lastName.value}<br>
-          <span class="position">${position.value}, ROMD</span></p>
+          <span class="position">Project Support Staff, ROMD</span></p>
         </div>
         <div>
           <p class="submit">Submitted to:</p>
