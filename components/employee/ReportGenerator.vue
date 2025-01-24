@@ -319,25 +319,34 @@ const printReport = () => {
             .submit{
               margin-right: 162.5px;
             }
-            .line{
-              margin-right: 65px;
-            }
+            // .line1{
+            //     border-bottom: 1px solid #000;
+            //       margin: 0;
+
+            // }
+            // .line2{
+            //     border-bottom: 1px solid #000;
+            // }
             .rsc{
               margin-right: 26px;
               font-weight: bold;
               text-transform: uppercase;
-
+              border-top: 1px solid #666;
+              padding-top: 5px;
+              margin-top: 55px;
             }
             .ed{
               margin-right: 46px;
               font-weight: normal;
               text-transform: none;
-
             }
             .name{
               text-align: left ;
               font-weight: bold;
               text-transform: uppercase;
+              border-top: 1px solid #666;
+              padding-top: 5px;
+              margin-top: 55px;
             }
             .position{
               text-align: left ;
@@ -393,13 +402,13 @@ const printReport = () => {
          <div style="display: flex; justify-content: space-between; margin-top: 20px;">
         <div class="prepared">
           <p class="prep">Prepared by:</p>
-          <p class="line">_____________________</p>
+          <p class="line1"></p>
           <p class="name">${firstName.value} ${lastName.value}<br>
           <span class="position">Project Support Staff, ROMD</span></p>
         </div>
         <div>
           <p class="submit">Submitted to:</p>
-          <p class="line">_______________________</p>
+          <p class="line2"></p>
           <p class="rsc">Rosalina S. Constantino <br><span class="ed"> Executive Director, ROMO</span></p>
         </div>
       </div>
