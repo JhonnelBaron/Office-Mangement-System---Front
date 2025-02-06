@@ -87,7 +87,7 @@
                                 {{ error }}
                             </div>
 
-                            <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">Login
+                            <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"> {{ timeIn ? 'Time In' : 'Time Out' }}
                             </button>
 
                             <p class="mt-4 text-sm text-center text-gray-600">
@@ -103,7 +103,7 @@
                 </client-only>
             </div>
         </div>
-        <CameraModal v-if="isCameraModalOpen" @close="isCameraModalOpen = false"/>
+        <CameraModal v-if="isCameraModalOpen" @close="isCameraModalOpen = false"  @savePicture="saveCapturedPicture"  @clearFields="clearFields"/>
 
     </div>
 </template>
@@ -112,10 +112,12 @@
 import { ref } from 'vue';
 import CameraModal from '@/components/CameraModal.vue';
 import { Auth } from '@/composables/Auth';
+import { uploadLoginPhoto } from '@/services/authService';
+import Swal from 'sweetalert2'; // Import SweetAlert2
 
 const { email, password, timeIn, error, handleLogin } = Auth();
 const showPassword = ref(false); // Control password visibility
-const isCameraModalOpen = ref(false); // Control the camera modal visibility
+const isCameraModalOpen = ref(false); // Control the camera modal visibility.
 
 // const timeIn = ref(true); // Toggle for Time In / Time Out
 
@@ -124,11 +126,116 @@ const togglePasswordVisibility = () => {
   showPassword.value = !showPassword.value;
 };
 
+// const handleLoginWithCamera = async () => {
+//   try {
+//     const success = await handleLogin();
+//     if (success) {
+//       isCameraModalOpen.value = true; // Open the camera modal after successful login
+//     } else {
+//       alert('Login failed. Please check your credentials.');
+//     }
+//   } catch (err) {
+//     console.error('Login error:', err.message);
+//     alert('An error occurred during login.');
+//   }
+// };
+
+// const handleLoginWithCamera = async () => {
+//   try {
+//     error.value = ''; // Clear any existing error before attempting login
+//     console.log('Attempting login with email:', email.value);
+
+//     // Check if we're in "Time In" mode
+//     if (timeIn.value) {
+//       // Proceed with Time In login
+//       // console.log("Attempting Time In login");
+//       const success = await handleLogin(); // Attempt login for "Time In"
+
+//       if (success === true) {
+//         // Only open the camera modal if login was successful and it's "Time In"
+//         isCameraModalOpen.value = true;
+//       } else {
+//         // If login failed, display error
+//         error.value = 'Login failed. Please check your credentials.';
+//       }
+//     } else {
+//       // If it's "Time Out", just handle that and log the user out
+//       // console.log("Attempting Time Out");
+//       await handleLogin(); // This should handle "Time Out" logic
+//       alert('Successfully logged out.');
+//     }
+//   } catch (err) {
+//     console.error('Login error:', err.message);
+//     error.value = 'An error occurred during login.'; // Set error message for other errors
+//   }
+// };
 const handleLoginWithCamera = async () => {
-  const success = await handleLogin();
-  if (success) {
-    isCameraModalOpen.value = true; // Open the camera modal after login
+  try {
+    error.value = ''; // Clear any existing error before attempting login
+    console.log('Attempting login with email:', email.value);
+
+    // Check if we're in "Time In" mode
+    if (timeIn.value) {
+      // Proceed with Time In login
+      const success = await handleLogin(); // Attempt login for "Time In"
+
+      if (success === true) {
+        // Only open the camera modal if login was successful and it's "Time In"
+        isCameraModalOpen.value = true;
+      } else {
+        // If login failed, display error
+        error.value = 'Login failed. Please check your credentials.';
+      }
+    } else {
+      // If it's "Time Out", just handle that and log the user out
+      const result = await handleLogin(); // Capture the result
+      
+
+      if (result === 'logged out') {
+        Swal.fire({
+          title: 'Logged Out!',
+          text: 'You have successfully time out.',
+          icon: 'success',
+          showConfirmButton: false,
+          timer: 1500, // Auto-close after 1.5 seconds
+        }).then(() => {
+          clearFields(); // Optionally clear fields after logout
+        });
+      } else {
+        error.value = 'Logout failed. Please try again.';
+      }
+    }
+  } catch (err) {
+    console.error('Login error:', err.message);
+    error.value = 'An error occurred during login.'; // Set error message for other errors
   }
+};
+
+
+// Save the captured picture (image data) and proceed with login
+const saveCapturedPicture = async (imageData) => {
+  try {
+    console.log('Picture captured:', imageData);
+    // Upload the captured photo
+    const response = await uploadLoginPhoto(imageData);
+
+    console.log('Photo upload response:', response);
+
+    // Save the photo URL (or data) to localStorage if needed
+    localStorage.setItem('photoUrl', response.photoUrl || '');
+
+    // Proceed to submit the "Time In" data
+    isCameraModalOpen.value = false; // Close the camera modal
+    await handleLogin(); // Ensure login completion
+  } catch (error) {
+    console.error('Error uploading photo:', error.message);
+    alert('Failed to upload photo. Please try again.');
+  }
+};
+
+const clearFields = () => {
+  email.value = '';
+  password.value = '';
 };
 
 </script>

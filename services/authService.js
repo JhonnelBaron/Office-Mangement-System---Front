@@ -1,25 +1,3 @@
-// export const loginUser = async (credentials) => {
-//   const { $api } = useNuxtApp(); 
-//   const router = useRouter();
-
-//   try {
-//     const response = await $api.post('/login', credentials);
-
-//     const token = response.data.data.access_token;
-//     const user = response.data.data.user;
-//     const redirectUrl = response.data.data.redirect_url;
-
-//     localStorage.setItem('auth_token', token);
-//     localStorage.setItem('user', JSON.stringify(user));
-
-//     router.push(redirectUrl);
-
-//   } catch (error) {
-//     const message = error.response?.data?.message || error.message || 'Login failed';
-//     console.error('Login failed:', message);
-//     throw new Error(message); 
-//   }
-// };
 export const loginUser = async (credentials) => {
   const { $api } = useNuxtApp(); 
   const router = useRouter();  // Use Vue router instance
@@ -80,5 +58,56 @@ export const registerUser = async (userData) => {
       console.error('Logout failed:', error);
     }
   };
+
+  export const uploadLoginPhoto = async (photo) => {
+    const { $api } = useNuxtApp(); // Use the API instance from Nuxt
+  
+    const formData = new FormData();
+    formData.append('photo', photo); // Append the photo to the form data
+  
+    try {
+      const response = await $api.post('/login-photo', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data', // Ensure the header is set correctly
+          Authorization: `Bearer ${localStorage.getItem('auth_token')}`, // Include the auth token if required
+        },
+      });
+  
+      console.log('Photo upload successful:', response.data);
+      return response.data; // Return the server response
+    } catch (error) {
+      const message = error.response?.data?.message || error.message || 'Photo upload failed';
+      console.error('Photo upload failed:', message);
+      throw new Error(message);
+    }
+  };
+
+  export const timeoutUser = async (credentials) => {
+    const { $api } = useNuxtApp();
+  
+    try {
+      // Ensure credentials contain 'email' and 'password' before sending to the backend
+      const response = await $api.post('/timeout', {
+        email: credentials.email,
+        password: credentials.password,  // Ensure password is included in the request
+      });
+  
+      console.log(response.data.message);  // Handle the response (session timeout message)
+      console.log('Logout Time:', response.data.logout_time);  // Log the logout time
+  
+      // Clear local storage and redirect to the login page after timeout
+      localStorage.removeItem('auth_token');
+      localStorage.removeItem('user');
+      return response.data.logout_time; 
+      // window.location.href = '/login';  // Redirect to login page after timeout
+  
+    } catch (error) {
+      console.error('Timeout failed:', error.response?.data?.message || error.message);
+    }
+  };
+  
+  
+  
+  
   
   
