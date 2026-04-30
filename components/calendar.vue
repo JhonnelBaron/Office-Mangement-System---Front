@@ -3,18 +3,18 @@
       <header class="calendar-header">
         <h2>{{ monthName }} {{ year }}</h2>
         <p class="today-date">Today: {{ formattedToday }}</p> <!-- Display today's date -->
-        <button @click="openModal" class="add-task-btn">Add Task</button>
+        <button class="add-task-btn" @click="openModal">Add Task</button>
       </header>
       <div class="calendar-grid">
-        <div class="day-header" v-for="(day, index) in dayNames" :key="index">
+        <div v-for="(day, index) in dayNames" :key="index" class="day-header">
           {{ day }}
         </div>
         <div
-          class="day"
           v-for="(day, index) in daysInMonth"
           :key="index"
-          @click="selectDay(day)"
-          :class="{ selected: isSelected(day) }"  
+          class="day"
+          :class="{ selected: isSelected(day) }"
+          @click="selectDay(day)"  
         >
           {{ day }}
           <div v-if="tasks[day]" class="task-list">
@@ -25,7 +25,7 @@
           <span v-if="tasks[day]" class="task-indicator">⚠️</span>
         </div>
       </div>
-      <taskModal v-if="isModalOpen" @close="closeModal" @addTask="addTask" :selectedDate="selectedDate" />
+      <taskModal v-if="isModalOpen" :selected-date="selectedDate" @close="closeModal" @add-task="addTask" />
     </div>
   </template>
   

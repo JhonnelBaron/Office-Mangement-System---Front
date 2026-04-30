@@ -2,16 +2,17 @@
   <div class="p-6">
     <div class="flex justify-between items-center mb-6">
       <h2 class="text-2xl font-bold">Tasking</h2>
-      <div class="ml-[800px] mt-0 hover:underline"> <ReportGenerator :tasks="filteredTasks" :cutoffDateRange="cutoffDateRange" :selectedCutoff="selectedCutoff" />
+      <div class="ml-[800px] mt-0 hover:underline"> <ReportGenerator :tasks="filteredTasks" :cutoff-date-range="cutoffDateRange" :selected-cutoff="selectedCutoff" />
       </div>
 
       <!-- Add Task Text Link with Plus Icon -->
-      <div class="flex items-center cursor-pointer text-blue-600 hover:underline"   :class="{ 'text-gray-400 cursor-not-allowed': hasInProgressTask }"
-  @click="handleAddTaskClick"
+      <div
+class="flex items-center cursor-pointer text-blue-600 hover:underline"   :class="{ 'text-gray-400 cursor-not-allowed': hasInProgressTask }"
   :disabled="hasInProgressTask"
+  @click="handleAddTaskClick"
 >
         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
         </svg>
         <span>Add Task</span>
       </div>
@@ -32,10 +33,10 @@
         type="date"
         class="border p-2 rounded focus:outline-none focus:ring focus:ring-blue-500 bg-gray-200 rounded-lg hover:bg-gray-300"
         @change="updateFilteredTasks"
-      />
+      >
     </div>
         <label class="ml-3 mr-2">Cutoff:</label>
-        <select v-model="selectedCutoff" @change="filterTasks('cutoff')" class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300">
+        <select v-model="selectedCutoff" class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300" @change="filterTasks('cutoff')">
             <option value="previousCutoff1">{{ cutoffDateRange.previousCutoff1.previousMonth }} 11-25</option>
   <option value="previousCutoff2">{{ cutoffDateRange.previousCutoff2.previousMonth }} 26 - {{ cutoffDateRange.previousCutoff2.currentMonth }} 10</option>
           <option value="cutoff1">{{ cutoffDateRange.cutoff1.currentMonth }} 11-25</option>
@@ -46,15 +47,15 @@
       <div class="flex space-x-4">
         <div class="flex items-center">
           <p>Pending: </p>
-          <div class="border border-yellow-500 bg-yellow-300 w-4 h-4 ml-2 mr-2 rounded-full"></div>
+          <div class="border border-yellow-500 bg-yellow-300 w-4 h-4 ml-2 mr-2 rounded-full"/>
         <span>1 Day</span>
       </div>
       <div class="flex items-center">
-        <div class="border border-orange-500 bg-orange-500 w-4 h-4 mr-2 rounded-full"></div>
+        <div class="border border-orange-500 bg-orange-500 w-4 h-4 mr-2 rounded-full"/>
         <span>2 Days</span>
       </div>
       <div class="flex items-center">
-        <div class="border border-red-500 bg-red-500 w-4 h-4 mr-2 rounded-full"></div>
+        <div class="border border-red-500 bg-red-500 w-4 h-4 mr-2 rounded-full"/>
         <span>3 Days</span>
       </div>
       </div>
@@ -62,7 +63,7 @@
 
 
     <!-- Task List -->
-    <TaskList :tasks="filteredTasks" @updateTasks="handleTaskUpdate" />
+    <TaskList :tasks="filteredTasks" @update-tasks="handleTaskUpdate" />
 
     <!-- "Print Accomplishment Report" Link -->
     <!-- <div class="mt-8">
@@ -132,7 +133,7 @@
           <!-- Description -->
           <div class="mb-4">
             <label class="block text-sm font-medium text-gray-700">Subject</label>
-            <textarea v-model="newTaskDescription" class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="Enter task description (e.g. MOA between TESDA & Philippine Army)" rows="3" required></textarea>
+            <textarea v-model="newTaskDescription" class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="Enter task description (e.g. MOA between TESDA & Philippine Army)" rows="3" required/>
           </div>
         </div>
 
@@ -156,7 +157,7 @@
 
       <!-- Actions -->
       <div class="flex justify-end mt-4">
-        <button type="button" @click="closeModal" class="text-gray-500 mr-4">Cancel</button>
+        <button type="button" class="text-gray-500 mr-4" @click="closeModal">Cancel</button>
         <button type="submit" :disabled="isSubmitting" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"><span v-if="isSubmitting">Submitting...</span> <span v-else>Add Task</span></button>
       </div>
     </form>
@@ -170,7 +171,9 @@
 import { ref, onMounted, onUnmounted, reactive } from 'vue';
 import TaskList from '@/components/TaskList.vue';
 import ReportGenerator from '@/components/employee/ReportGenerator.vue';
-import { addTask as addTaskService, getTasks } from '@/services/taskService';
+import { addTask as addTaskService, getTasks } from '@/services/taskService'; // New state to track if the form is being submitted
+
+import Swal from 'sweetalert2';
 
 definePageMeta({
   layout: 'employee'
@@ -193,9 +196,7 @@ const newTaskStatus = ref('Draft');
 const newTaskOtherStatus = ref('');
 const newTaskNoOfDocuments = ref(0);
 const newTaskDocumentLinks = ref([]);
-const isSubmitting = ref(false); // New state to track if the form is being submitted
-
-import Swal from 'sweetalert2';
+const isSubmitting = ref(false);
 
 let successMessageTimer = null; // Declare the timer variable globally
 

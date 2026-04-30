@@ -3,8 +3,8 @@
       <div class="modal-content">
         <span class="close" @click="$emit('close')">&times;</span>
         <h3>Add Task for {{ selectedDate }}</h3>
-        <input v-model="taskName" placeholder="Task Name" />
-        <input v-model="taskDeadline" type="date" />
+        <input v-model="taskName" placeholder="Task Name" >
+        <input v-model="taskDeadline" type="date" >
         <button @click="submitTask">Add Task</button>
       </div>
     </div>

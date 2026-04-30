@@ -4,13 +4,13 @@
         <h2 class="text-2xl font-bold text-gray-800 mb-6">Test Camera</h2>
   
         <!-- Video element to show camera feed -->
-        <video ref="video" autoplay playsinline class="w-full max-w-sm border-2 rounded-lg"></video>
+        <video ref="video" autoplay playsinline class="w-full max-w-sm border-2 rounded-lg"/>
         
-        <button @click="capture" class="bg-blue-600 text-white py-2 px-4 rounded mt-4 hover:bg-blue-700">
+        <button class="bg-blue-600 text-white py-2 px-4 rounded mt-4 hover:bg-blue-700" @click="capture">
           Capture Image
         </button>
   
-        <canvas ref="canvas" class="mt-4"></canvas>
+        <canvas ref="canvas" class="mt-4"/>
       </div>
     </div>
   </template>

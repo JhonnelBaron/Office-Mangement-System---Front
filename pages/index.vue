@@ -27,7 +27,7 @@
                         <form @submit.prevent="handleLogin">
                             <div class="mb-4">
                                 <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-                                <input id="email" type="email" v-model="email" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="Enter your email"/>
+                                <input id="email" v-model="email" type="email" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="Enter your email">
                             </div>
 
 
@@ -36,15 +36,15 @@
                 <div class="relative">
                   <input
                     id="password"
-                    :type="showPassword ? 'text' : 'password'"
                     v-model="password"
+                    :type="showPassword ? 'text' : 'password'"
                     class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                     placeholder="Enter your password"
-                  />
+                  >
                   <button
                     type="button"
-                    @click="togglePasswordVisibility"
                     class="absolute inset-y-0 right-0 flex items-center px-3 text-sm text-gray-500 hover:text-gray-700"
+                    @click="togglePasswordVisibility"
                   >
                     {{ showPassword ? 'Hide' : 'Show' }}
                   </button>

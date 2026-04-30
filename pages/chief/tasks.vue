@@ -24,11 +24,11 @@
     <div class="flex items-center">
       <label for="taskDate" class="mr-2 font-medium">Filter by Date:</label>
       <input
-        type="date"
         v-model="filterDate"
+        type="date"
         class="border border-gray-300 p-2 rounded focus:outline-none focus:ring focus:ring-blue-500"
         @change="updateFilteredTasks"
-      />
+      >
     </div>
         <!-- Reload Icon -->
     <svg 
@@ -37,8 +37,8 @@
           xmlns="http://www.w3.org/2000/svg" 
           fill="none" 
           viewBox="0 0 24 24"
-          @click="reloadData"
           title="Reload Data"
+          @click="reloadData"
         >
           <path 
             stroke="currentColor" 
@@ -137,14 +137,14 @@
           </select>
   
           <label class="block mb-1">Task Title:</label>
-          <input v-model="newTask.title" type="text" class="border border-gray-300 mb-2 p-2 rounded w-full" />
+          <input v-model="newTask.title" type="text" class="border border-gray-300 mb-2 p-2 rounded w-full" >
   
           <label class="block mb-1">Description:</label>
-          <textarea v-model="newTask.description" class="border border-gray-300 mb-2 p-2 rounded w-full"></textarea>
+          <textarea v-model="newTask.description" class="border border-gray-300 mb-2 p-2 rounded w-full"/>
   
           <div class="flex justify-end">
-            <button @click="showModal = false" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded transition duration-200">Cancel</button>
-            <button @click="addTask" class="bg-gray-200 hover:bg-green-700 text-black px-4 py-2 rounded transition duration-200">Add Task</button>
+            <button class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded transition duration-200" @click="showModal = false">Cancel</button>
+            <button class="bg-gray-200 hover:bg-green-700 text-black px-4 py-2 rounded transition duration-200" @click="addTask">Add Task</button>
           </div>
         </div>
       </div>

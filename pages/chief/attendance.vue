@@ -43,8 +43,8 @@
             <select 
                 id="attendanceFilter" 
                 v-model="selectedFilter" 
-                @change="updateFilteredAttendance" 
-                class="border border-gray-300 p-2 rounded-full">
+                class="border border-gray-300 p-2 rounded-full" 
+                @change="updateFilteredAttendance">
                 <option value="all">All</option>
                 <option value="onTime">On Time</option>
                 <option value="late">Late</option>
@@ -52,11 +52,11 @@
             </select>
           <label for="taskDate" class="mr-2 font-medium">Date:</label>
           <input
-            type="date"
             v-model="filterDate"
+            type="date"
             class="border border-gray-300 p-2 rounded-full focus:outline-none focus:ring focus:ring-blue-500"
             @change="updateFilteredAttendance"
-          />
+          >
         </div>
       </div>
       <table class="w-full table-auto mt-2">

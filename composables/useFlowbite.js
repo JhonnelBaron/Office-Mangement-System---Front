@@ -1,7 +1,7 @@
 // composables/useFlowbite.js
 
 export function useFlowbite(callback) {
-    if (process.client) {
+    if (import.meta.client) {
       import('flowbite').then((flowbite) => {
         callback(flowbite);
       });

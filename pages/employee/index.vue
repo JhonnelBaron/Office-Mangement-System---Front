@@ -8,7 +8,7 @@
     <div class="p-6 rounded bg-white text-gray-800 shadow-lg">
         <h3 class="text-3xl font-bold">Hi, {{userName}}!!</h3>
         <p class="mt-2 text-xl font-semibold">Mag aambag ka ba ngayon sa gobyerno?</p>
-        <p class="mt-1 text-sm"> </p>
+        <p class="mt-1 text-sm"/>
       </div>
       
     <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8 mt-10">
@@ -25,17 +25,17 @@
       <div class="p-6 rounded bg-gradient-to-r from-yellow-500 to-orange-500 text-white shadow-lg">
         <h3 class="text-lg font-bold">Total Done Task</h3>
         <p class="mt-2 text-4xl font-semibold">{{ tasksDone }}</p>
-        <p class="mt-1 text-sm"> </p>
+        <p class="mt-1 text-sm"/>
       </div>
       <div class="p-6 rounded bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-lg">
         <h3 class="text-lg font-bold">Suspended Task</h3>
         <p class="mt-2 text-4xl font-semibold">{{ tasksSuspended }}</p>
-        <p class="mt-1 text-sm"> </p>
+        <p class="mt-1 text-sm"/>
       </div>
       <div class="p-6 rounded bg-gradient-to-r from-purple-500 to-blue-500 text-white shadow-lg">
         <h3 class="text-lg font-bold">In Progress Task</h3>
         <p class="mt-2 text-4xl font-semibold">{{ tasksInProgress }}</p>
-        <p class="mt-1 text-sm"> </p>
+        <p class="mt-1 text-sm"/>
       </div>
     </div>
 
@@ -109,9 +109,7 @@
   </div>
 
   <!-- Footer Section -->
-  <div class="border-t border-gray-200 dark:border-gray-700 mt-5 p-4 md:p-6">
-
-  </div>
+  <div class="border-t border-gray-200 dark:border-gray-700 mt-5 p-4 md:p-6"/>
 </div>
 
 
@@ -197,7 +195,7 @@ const updateChartData = (attendance) => {
     const labels = attendance.map((log) => log.date); // X-axis will be the dates
     const data = attendance.map((log) => {
       const timeParts = log.time_in.split(' '); // Split AM/PM from time (e.g., "08:50 AM")
-      const [hours, minutes] = timeParts[0].split(':').map(num => parseInt(num));
+      const [hours, minutes] = timeParts[0].split(':').map(num => Number.parseInt(num));
       const isPM = timeParts[1] === 'PM';
       const totalMinutes = (isPM ? hours + 12 : hours) * 60 + minutes; // Convert to 24-hour time
       return totalMinutes; // Return the time in minutes for the Y-axis
@@ -222,7 +220,7 @@ const updateChartData = (attendance) => {
     const userName = ref('');
 
     onMounted(async () => {
-  if (process.client) {
+  if (import.meta.client) {
     // Retrieve user name from localStorage
     const userString = localStorage.getItem('user');
     const user = userString ? JSON.parse(userString) : null;

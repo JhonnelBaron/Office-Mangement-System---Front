@@ -1,50 +1,37 @@
-import { useRouter } from 'vue-router';
+// middleware/auth.global.ts
+export default defineNuxtRouteMiddleware((to) => {
+  // 1. Gamitin ang cookies para gumana sa Server side (Hydration safe)
+  const token = useCookie('auth_token').value
+  const userCookie = useCookie('user').value // Siguraduhin na nagse-set ka rin ng cookie para sa user data
 
-export default defineNuxtRouteMiddleware((to, from) => {
-  const auth = useState('auth');
-  const router = useRouter();
-  
-  // Check if we're on the client side before accessing localStorage
-  if (process.client) {
-    // Retrieve the user data and token from localStorage (only on the client)
-    const userString = localStorage.getItem('user');
-    const user = userString ? JSON.parse(userString) : null; 
-    const token = localStorage.getItem('auth_token');
-    
-    // If the user is not authenticated, allow access to the login page ("/")
-    if (!token || !user) {
-      // Allow unauthenticated users to access login or register pages
-      if (to.path === '/register' || to.path === '/' || to.path === '/reset-password' || to.path === '/update-password' || to.path === '/login' || to.path === '/camtest') {
-        // Allow access to register or login page
-        return;
-      } else {
-        // Redirect to login page if not logged in
-        router.push('/'); // Redirect to login page if trying to access any other page
-      }
-    } else {
-      // If the user is authenticated, get their user type
-      const userType = user.user_type;
+  const publicPaths = ['/', '/login', '/register', '/reset-password', '/update-password', '/camtest']
+  const allowedGlobalRoutes = ['/notifications', '/profile', '/unauthorized']
 
-      // Restrict access based on user type
-      if (userType === 'employee') {
-        // Employee can only access specific pages
-        if (!to.path.startsWith('/employee') && to.path !== '/unauthorized') {
-          router.push('/unauthorized'); // Redirect to unauthorized if employee tries to access other pages
-        }
-      } else if (userType === 'admin') {
-        // Admin can only access admin pages
-        if (!to.path.startsWith('/admin') && to.path !== '/unauthorized') {
-          router.push('/unauthorized'); // Redirect to unauthorized if admin tries to access other pages
-        }
-      } else if (userType === 'chief') {
-        // Chief can only access chief pages
-        if (!to.path.startsWith('/chief') && to.path !== '/unauthorized') {
-          router.push('/unauthorized'); // Redirect to unauthorized if chief tries to access other pages
-        }
-      } else {
-        // If the user type is not recognized, redirect to login
-        router.push('/'); // Default to login page
+  // 2. Kung walang token at susubok pumasok sa hindi public page
+  if (!token && !publicPaths.includes(to.path)) {
+    return navigateTo('/')
+  }
+
+  // 3. Kung logged in na at susubok bumalik sa login/register
+  if (token && publicPaths.includes(to.path)) {
+      if (userCookie) {
+        const user = typeof userCookie === 'string' ? JSON.parse(userCookie) : userCookie;
+        return navigateTo(`/${user.user_type}`);
       }
     }
+
+  if (token && userCookie) {
+    const user = typeof userCookie === 'string' ? JSON.parse(userCookie) : userCookie
+    const userType = user.user_type
+    
+    // Normalize path check
+    const isGlobal = allowedGlobalRoutes.includes(to.path)
+    const isCorrectRoleFolder = to.path.startsWith(`/${userType}`)
+
+    // 4. Role Protection Logic
+    // Payagan kung: Global Route OR Tama ang folder role OR Unauthorized page
+    if (!isGlobal && !isCorrectRoleFolder && to.path !== '/unauthorized') {
+      return navigateTo('/unauthorized')
+    }
   }
-});
+})

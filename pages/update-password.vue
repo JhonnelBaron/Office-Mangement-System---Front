@@ -75,9 +75,8 @@
   
   <script setup>
   import { ref, onMounted } from 'vue';
-  import axios from 'axios';
   import { useRouter, useRoute } from 'vue-router';
-  
+  const { $api } = useNuxtApp();
   const route = useRoute();
   const router = useRouter();
   const password = ref('');
@@ -99,7 +98,7 @@
   
   const handlePasswordReset = async () => {
     try {
-      const response = await axios.post('http://127.0.0.1:8000/api/password/reset', {
+      const response = await $api.post('/password/reset', {
         token: route.query.token,
         email: route.query.email,
         password: password.value,

@@ -2,7 +2,7 @@
     <div class="p-6 rounded bg-white text-gray-800 shadow-lg">
         <h3 class="text-3xl font-bold">Welcome Chief!!</h3>
         <p class="mt-2 text-xl font-semibold">Eto na nga pala yung ambag ng mga bata</p>
-        <p class="mt-1 text-sm"></p>
+        <p class="mt-1 text-sm"/>
     </div>
     
     <div class="mb-8 mt-5">
@@ -63,8 +63,8 @@
                 <div v-if="task.links && task.links.length" class="text-blue-500">
                     <a 
                         v-for="(link, index) in task.links" 
-                        :href="link" 
                         :key="index" 
+                        :href="link" 
                         target="_blank" 
                         :title="link" 
                         class="hover:underline">
@@ -94,8 +94,8 @@
                 <div v-if="task.links && task.links.length" class="text-blue-500">
                     <a 
                         v-for="(link, index) in task.links" 
-                        :href="link" 
                         :key="index" 
+                        :href="link" 
                         target="_blank" 
                         :title="link" 
                         class="hover:underline">
@@ -125,8 +125,8 @@
                 <div v-if="task.links && task.links.length" class="text-blue-500">
                     <a 
                         v-for="(link, index) in task.links" 
-                        :href="link" 
                         :key="index" 
+                        :href="link" 
                         target="_blank" 
                         :title="link" 
                         class="hover:underline">
@@ -156,8 +156,8 @@
                 <div v-if="task.links && task.links.length" class="text-blue-500">
                     <a 
                         v-for="(link, index) in task.links" 
-                        :href="link" 
                         :key="index" 
+                        :href="link" 
                         target="_blank" 
                         :title="link" 
                         class="hover:underline">

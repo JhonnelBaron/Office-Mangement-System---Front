@@ -29,23 +29,23 @@
                   <label for="firstName" class="block text-sm font-medium text-gray-700">First Name</label>
                   <input
                     id="firstName"
-                    type="text"
                     v-model="firstName"
+                    type="text"
                     class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                     placeholder="Enter your first name"
                     required
-                  />
+                  >
                 </div>
                 <div class="flex-1">
                   <label for="lastName" class="block text-sm font-medium text-gray-700">Last Name</label>
                   <input
                     id="lastName"
-                    type="text"
                     v-model="lastName"
+                    type="text"
                     class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                     placeholder="Enter your last name"
                     required
-                  />
+                  >
                 </div>
               </div>
 
@@ -71,12 +71,12 @@
                 <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
                 <input
                   id="email"
-                  type="email"
                   v-model="email"
+                  type="email"
                   class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                   placeholder="Enter your email"
                   required
-                />
+                >
               </div>
   
               <!-- Password -->
@@ -109,13 +109,13 @@
               <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
               <input
                 id="password"
-                :type="showPassword ? 'text' : 'password'"
                 v-model="password"
+                :type="showPassword ? 'text' : 'password'"
                 minlength="8"
                 class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                 placeholder="Enter your password (min. 8 characters)"
                 required
-              />
+              >
             </div>
 
             <!-- Confirm Password -->
@@ -123,22 +123,22 @@
               <label for="confirmPassword" class="block text-sm font-medium text-gray-700">Confirm Password</label>
               <input
                 id="confirmPassword"
-                :type="showPassword ? 'text' : 'password'"
                 v-model="confirmPassword"
+                :type="showPassword ? 'text' : 'password'"
                 class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                 placeholder="Confirm your password"
                 required
-              />
+              >
             </div>
 
             <!-- Show Password Checkbox -->
             <div class="mb-4 flex items-center">
               <input
                 id="showPassword"
-                type="checkbox"
                 v-model="showPassword"
+                type="checkbox"
                 class="mr-2"
-              />
+              >
               <label for="showPassword" class="text-sm text-gray-600">Show Password</label>
             </div>
   

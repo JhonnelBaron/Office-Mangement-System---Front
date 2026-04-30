@@ -59,7 +59,7 @@
               <span
                 :class="{
                   'text-green-500': task.status === 'Done',
-                  'text-green-500': task.status === 'Suspended',
+                  'text-red-500': task.status === 'Suspended',
                   'text-yellow-500': task.status === 'In Progress'
                 }"
                 class="text-sm font-bold mb-1"
@@ -67,9 +67,9 @@
                 {{ task.status }}
               </span>
               <button     
-                @click="editTask(task)"
                 :disabled="task.status === 'Done'"
                 :class="{ 'text-gray-500 cursor-not-allowed': task.status === 'Done', 'text-blue-600 hover:underline': task.status !== 'Done' }"
+                @click="editTask(task)"
                   >
                   Edit
               </button>
@@ -106,7 +106,7 @@
         <!-- Title -->
         <div class="mb-4">
           <label class="block text-sm font-medium text-gray-700">Task</label>
-          <input v-model="editedTask.title" class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="Enter task (e.g. MOA Review)" />
+          <input v-model="editedTask.title" class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="Enter task (e.g. MOA Review)" >
         </div>
 
         <!-- Type -->
@@ -129,7 +129,7 @@
         <!-- Description -->
         <div class="mb-4">
           <label class="block text-sm font-medium text-gray-700">Subject</label>
-          <textarea v-model="editedTask.description" class="w-full px-3 py-2 border border-gray-300 rounded-md" rows="3" placeholder="Enter task description (e.g. MOA between TESDA & Philippine Army)" ></textarea>
+          <textarea v-model="editedTask.description" class="w-full px-3 py-2 border border-gray-300 rounded-md" rows="3" placeholder="Enter task description (e.g. MOA between TESDA & Philippine Army)" />
         </div>
 
         <!-- Link -->
@@ -164,7 +164,7 @@
       class="w-full px-3 py-2 border border-gray-300 rounded-md" 
       placeholder="Enter number of documents" 
       required 
-    />
+    >
   </div>
 
   <!-- Document Links -->
@@ -176,7 +176,7 @@
         type="url" 
         class="w-full px-3 py-2 border border-gray-300 rounded-md" 
         placeholder="Enter document link" 
-      />
+      >
     </div>
   </div>
 </div>
@@ -185,8 +185,8 @@
 
     <!-- Actions -->
     <div class="flex justify-end mt-6">
-      <button @click="closeEditModal" class="text-gray-500 mr-4">Cancel</button>
-      <button @click="updateTask" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">Update</button>
+      <button class="text-gray-500 mr-4" @click="closeEditModal">Cancel</button>
+      <button class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700" @click="updateTask">Update</button>
     </div>
   </div>
 </div>

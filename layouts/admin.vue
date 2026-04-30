@@ -18,7 +18,7 @@
           </nav>
         </div>
         <div class="p-4">
-        <button @click="handleLogout" class="w-full p-2 bg-red-600 text-white rounded hover:bg-red-700 mb-0">
+        <button class="w-full p-2 bg-red-600 text-white rounded hover:bg-red-700 mb-0" @click="handleLogout">
           Logout
         </button>
       </div>

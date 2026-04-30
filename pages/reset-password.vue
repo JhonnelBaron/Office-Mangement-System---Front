@@ -8,11 +8,11 @@
             <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
             <input
               id="email"
-              type="email"
               v-model="email"
+              type="email"
               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
               placeholder="Enter your email"
-            />
+            >
           </div>
   
           <div v-if="message" class="mb-4 text-green-600">
@@ -28,7 +28,7 @@
             :disabled="isLoading"
           >
           <div v-if="isLoading" class="flex items-center">
-    <div class="loader mr-2"></div>
+    <div class="loader mr-2"/>
     Processing...
   </div>
             <!-- <div v-if="isLoading" class="loader mr-2"></div> -->
@@ -45,8 +45,7 @@
   
   <script setup>
   import { ref } from 'vue';
-  import axios from 'axios';
-  
+  const { $api } = useNuxtApp();
   const email = ref('');
   const message = ref('');
   const error = ref('');
@@ -55,7 +54,7 @@
   const handleResetLink = async () => {
     isLoading.value = true;
     try {
-      const response = await axios.post('http://127.0.0.1:8000/api/password/email', { email: email.value });
+      const response = await $api.post('/password/email', { email: email.value });
       message.value = response.data.message;
       error.value = '';
     } catch (err) {

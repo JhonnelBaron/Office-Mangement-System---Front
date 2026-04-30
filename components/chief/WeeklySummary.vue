@@ -21,12 +21,12 @@
         <h3 class="text-xl font-semibold mb-4">Weekly Attendance Summary</h3>
         <div>
       <label for="monthSelect" class="mr-2">Select Month:</label>
-      <select id="monthSelect" class="border border-gray-300 p-2 rounded-full" v-model="selectedMonth" @change="updateWeeks">
+      <select id="monthSelect" v-model="selectedMonth" class="border border-gray-300 p-2 rounded-full" @change="updateWeeks">
         <option v-for="(month, index) in months" :key="index" :value="index">{{ month }}</option>
       </select>
 
       <label for="weekSelect" class="ml-4 mr-2">Week:</label>
-      <select id="weekSelect" class="border border-gray-300 p-2 rounded-full" v-model="selectedWeek">
+      <select id="weekSelect" v-model="selectedWeek" class="border border-gray-300 p-2 rounded-full">
         <option v-for="(week, index) in weeks" :key="index" :value="index">{{ week }}</option>
       </select>
     </div>

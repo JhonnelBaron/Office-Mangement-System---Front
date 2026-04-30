@@ -20,8 +20,8 @@
               <td class="py-2 px-4">{{ user.status }}</td>
               <td class="py-2 px-4">
                 <button
-                  @click="activateUser(user.id)"
                   class="bg-blue-600 text-white px-4 py-1 rounded hover:bg-blue-700"
+                  @click="activateUser(user.id)"
                 >
                   Activate
                 </button>
@@ -34,12 +34,12 @@
   </template>
 
 <script setup>
+    import { ref, onMounted } from 'vue';
+import { useNuxtApp } from '#app';
+
     definePageMeta({
         layout: 'admin'
     })
-
-    import { ref, onMounted } from 'vue';
-import { useNuxtApp } from '#app';
 
 const pendingUsers = ref([]);
 const { $api } = useNuxtApp();

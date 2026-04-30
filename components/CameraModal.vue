@@ -4,21 +4,21 @@
       <h3 class="text-lg font-semibold mb-4">Capture Your Picture</h3>
       
       <!-- Show the video stream only if pictureTaken is false -->
-      <video ref="video" v-if="!pictureTaken" autoplay playsinline class="w-full h-64 rounded-lg mb-4"></video>
+      <video v-if="!pictureTaken" ref="video" autoplay playsinline class="w-full h-64 rounded-lg mb-4"/>
       
       <!-- Only show the Capture Image button if no picture has been taken -->
-      <button v-if="!pictureTaken" @click="capture" class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700">
+      <button v-if="!pictureTaken" class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700" @click="capture">
         Capture Image
       </button>
 
-      <canvas ref="canvas" class="mt-4 max-w-full max-h-56 mx-auto"></canvas> <!-- Limit the size of the captured image -->
+      <canvas ref="canvas" class="mt-4 max-w-full max-h-56 mx-auto"/> <!-- Limit the size of the captured image -->
 
       <!-- Show the Retake button below the canvas after a picture has been taken -->
       <div v-if="pictureTaken" class="mt-4 flex flex-col items-center">
-        <button @click="retake" class="w-full bg-yellow-600 text-white py-2 px-4 rounded-md hover:bg-yellow-700 mb-2">
+        <button class="w-full bg-yellow-600 text-white py-2 px-4 rounded-md hover:bg-yellow-700 mb-2" @click="retake">
           Retake
         </button>
-        <button @click="savePicture" class="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700">
+        <button class="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700" @click="savePicture">
           Save
         </button>
       </div>
@@ -28,12 +28,12 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+// import { useRouter } from 'vue-router';
 import Swal from 'sweetalert2'; // Import SweetAlert2
 
-// Get the router instance
-const router = useRouter();
-
+// const router = useRouter();
+const email = ref('');
+const password = ref('');
 // Emit for closing the modal
 const emit = defineEmits();
 

@@ -30,10 +30,10 @@
                        <div class="mb-4  flex justify-end items-center">
                         <!-- <label class="block text-sm font-medium text-gray-700">Time In / Time Out</label> -->
                         <label class="inline-flex items-center cursor-pointer -mb-16">
-                          <input type="checkbox" v-model="timeIn" class="sr-only peer">
+                          <input v-model="timeIn" type="checkbox" class="sr-only peer">
                           <div
                             class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"
-                          ></div>
+                          />
                           <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">
                             {{ timeIn ? 'Time In' : 'Time Out' }}
                           </span>
@@ -45,7 +45,7 @@
                         <form @submit.prevent="handleLoginWithCamera">
                             <div class="mb-4">
                                 <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-                                <input id="email" type="email" v-model="email" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="Enter your email"/>
+                                <input id="email" v-model="email" type="email" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="Enter your email">
                             </div>
 
 
@@ -54,15 +54,15 @@
                 <div class="relative">
                   <input
                     id="password"
-                    :type="showPassword ? 'text' : 'password'"
                     v-model="password"
+                    :type="showPassword ? 'text' : 'password'"
                     class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                     placeholder="Enter your password"
-                  />
+                  >
                   <button
                     type="button"
-                    @click="togglePasswordVisibility"
                     class="absolute inset-y-0 right-0 flex items-center px-3 text-sm text-gray-500 hover:text-gray-700"
+                    @click="togglePasswordVisibility"
                   >
                     {{ showPassword ? 'Hide' : 'Show' }}
                   </button>
@@ -103,7 +103,7 @@
                 </client-only>
             </div>
         </div>
-        <CameraModal v-if="isCameraModalOpen" @close="isCameraModalOpen = false"  @savePicture="saveCapturedPicture"  @clearFields="clearFields"/>
+        <CameraModal v-if="isCameraModalOpen" @close="isCameraModalOpen = false"  @save-picture="saveCapturedPicture"  @clear-fields="clearFields"/>
 
     </div>
 </template>
@@ -199,7 +199,7 @@ const handleLoginWithCamera = async () => {
           showConfirmButton: false,
           timer: 1500, // Auto-close after 1.5 seconds
         }).then(() => {
-          clearFields(); // Optionally clear fields after logout
+          clearFields(); // Optionally clear fields after logout    
         });
       } else {
         error.value = 'Logout failed. Please try again.';
