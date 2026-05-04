@@ -42,11 +42,8 @@ export const useNotificationStore = defineStore('notification', {
       const { $echo } = useNuxtApp();
       if (!$echo) return;
 
-      console.log(`📡 Listening for notifications on channel: user.${userId}`);
-
       $echo.private(`user.${userId}`)
         .listen('.routeslip.updated', (payload) => {
-          console.log("🚀 Real-time payload received:", payload);
           this.increment(payload); 
         });
     },

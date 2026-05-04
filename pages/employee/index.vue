@@ -201,10 +201,6 @@ const updateChartData = (attendance) => {
       return totalMinutes; // Return the time in minutes for the Y-axis
     });
 
-    // Debugging logs to check data
-    console.log("Chart Labels (Dates):", labels);
-    console.log("Chart Data (Minutes):", data);
-
     chartData.value.labels = labels;
     chartData.value.datasets[0].data = data;
   }
