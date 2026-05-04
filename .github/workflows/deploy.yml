@@ -17,7 +17,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 24 # Gamitin na natin ang Node 24 para 2026-ready
+          node-version: 24
           cache: 'pnpm'
 
       - name: Install Dependencies
@@ -26,14 +26,19 @@ jobs:
       - name: Build Project
         run: pnpm run build
 
-      - name: Deploy via SFTP
-        uses: easingthemes/ssh-deploy@v5.1.0
-        with:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          PASSPHRASE: ${{ secrets.SSH_PASSPHRASE }} 
-          REMOTE_HOST: ${{ secrets.FTP_SERVER }}
-          REMOTE_USER: ${{ secrets.FTP_USERNAME }}
-          REMOTE_PORT: ${{ secrets.FTP_PORT }}
-          SOURCE: ".output/"
-          TARGET: "/home/u782169281/domains/pink-dotterel-993276.hostingersite.com/projects/Office-Mangement-System---Front/.output/"
-          ARGS: "-rlgoDzvc -i"
+      - name: Deploy via Native Rsync
+        env:
+          SSH_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          # 1. I-setup ang SSH directory
+          mkdir -p ~/.ssh
+          
+          # 2. I-save ang Private Key sa file at i-set ang tamang permissions
+          echo "$SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          
+          # 3. I-scan ang server para hindi mag-prompt ng "Are you sure you want to connect?"
+          ssh-keyscan -p ${{ secrets.FTP_PORT }} ${{ secrets.FTP_SERVER }} >> ~/.ssh/known_hosts
+          
+          # 4. I-upload ang files gamit ang Rsync
+          rsync -avz --delete -e "ssh -p ${{ secrets.FTP_PORT }} -i ~/.ssh/id_ed25519" .output/ ${{ secrets.FTP_USERNAME }}@${{ secrets.FTP_SERVER }}:/home/u782169281/domains/pink-dotterel-993276.hostingersite.com/projects/Office-Mangement-System---Front/.output/
