@@ -1,0 +1,44 @@
+name: Auto Deploy Nuxt
+
+on:
+  push:
+    branches:
+      - main # Siguraduhin na "main" ang gamit mong branch name
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install PNPM
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install Dependencies
+        run: pnpm install
+
+      - name: Build Project
+        run: pnpm run build
+
+      - name: Sync to Hostinger via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          # Ang local folder na ia-upload (output ng build)
+          local-dir: .output/
+          # Ang path sa loob ng Hostinger server
+          server-dir: domains/pink-dotterel-993276.hostingersite.com/projects/Office-Mangement-System---Front/.output/
+          # Buburahin ang lumang .output sa server para malinis
+          delete-destination: true
