@@ -1,4 +1,4 @@
-name: Auto Deploy Nuxt
+name: Auto Deploy Nuxt (SFTP)
 
 on:
   push:
@@ -14,14 +14,14 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install PNPM
-        uses: pnpm/action-setup@v3
+        uses: pnpm/action-setup@v4
         with:
           version: 9
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: 'pnpm'
 
       - name: Install Dependencies
@@ -30,14 +30,16 @@ jobs:
       - name: Build Project
         run: pnpm run build
 
-      - name: Sync to Hostinger via FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+      - name: Deploy via SFTP
+        uses: wlixcc/SFTP-Deploy-Action@v1.2.4
         with:
           server: ${{ secrets.FTP_SERVER }}
+          port: ${{ secrets.FTP_PORT }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: .output/
-          server-dir: domains/pink-dotterel-993276.hostingersite.com/projects/Office-Mangement-System---Front/.output/
-          # Inalis natin yung delete-destination para iwas error
-          # Idinagdag natin ang port at protocol para mas sigurado ang connection
-          port: 21
+          # Local folder na ia-upload
+          local_path: .output/
+          # Path sa server (siguraduhin na nagsisimula sa /home/u782169281/...)
+          remote_path: /home/u782169281/domains/pink-dotterel-993276.hostingersite.com/projects/Office-Mangement-System---Front/.output/
+          # Buburahin muna ang laman ng remote_path bago i-upload
+          delete_remote_files: true
