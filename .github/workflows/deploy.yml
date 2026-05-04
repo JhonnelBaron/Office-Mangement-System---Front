@@ -5,6 +5,10 @@ on:
     branches:
       - main
 
+# Idinagdag natin ito para mawala ang Node.js 20 warning
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -15,7 +19,6 @@ jobs:
 
       - name: Install PNPM
         uses: pnpm/action-setup@v4
-        # Tinanggal natin yung 'version: 9' dito para gamitin yung sa package.json mo
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
