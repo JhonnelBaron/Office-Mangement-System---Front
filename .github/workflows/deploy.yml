@@ -15,8 +15,7 @@ jobs:
 
       - name: Install PNPM
         uses: pnpm/action-setup@v4
-        with:
-          version: 9
+        # Tinanggal natin yung 'version: 9' dito para gamitin yung sa package.json mo
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -37,9 +36,6 @@ jobs:
           port: ${{ secrets.FTP_PORT }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          # Local folder na ia-upload
           local_path: .output/
-          # Path sa server (siguraduhin na nagsisimula sa /home/u782169281/...)
           remote_path: /home/u782169281/domains/pink-dotterel-993276.hostingersite.com/projects/Office-Mangement-System---Front/.output/
-          # Buburahin muna ang laman ng remote_path bago i-upload
           delete_remote_files: true
