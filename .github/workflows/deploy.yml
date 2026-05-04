@@ -1,19 +1,45 @@
-- name: Deploy via Native Rsync
-        env:
-          SSH_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+name: Auto Deploy Nuxt (SFTP)
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install PNPM
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: 'pnpm'
+
+      - name: Install Dependencies
+        run: pnpm install
+
+      - name: Build Project
+        run: pnpm run build
+
+      # Ito ang mag-aayos ng SSH Key mo na may Passphrase
+      - name: Install SSH Key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          known_hosts: "just-a-placeholder-value" # Kusa itong maa-update mamaya
+          if_key_exists: replace
+
+      # Ito ang mag-a-add ng Hostinger sa known_hosts para hindi mag-error
+      - name: Adding Known Hosts
+        run: ssh-keyscan -p ${{ secrets.FTP_PORT }} ${{ secrets.FTP_SERVER }} >> ~/.ssh/known_hosts
+
+      # Gagamit tayo ng simpleng rsync command para sa deployment
+      - name: Deploy with Rsync
         run: |
-          mkdir -p ~/.ssh
-          
-          # Gamitin natin ang 'printf' para hindi masira ang format ng key
-          printf "%s" "$SSH_KEY" > ~/.ssh/id_ed25519
-          
-          # Siguraduhin na may newline sa dulo ng file (importante ito sa SSH keys)
-          echo "" >> ~/.ssh/id_ed25519
-          
-          chmod 600 ~/.ssh/id_ed25519
-          
-          # I-scan ang host (Port 65002)
-          ssh-keyscan -p ${{ secrets.FTP_PORT }} ${{ secrets.FTP_SERVER }} >> ~/.ssh/known_hosts
-          
-          # I-run ang rsync na may verbose debug (-vv) para makita natin kung bakit nare-reject
-          rsync -avzvv --delete -e "ssh -p ${{ secrets.FTP_PORT }} -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no" .output/ ${{ secrets.FTP_USERNAME }}@${{ secrets.FTP_SERVER }}:/home/u782169281/domains/pink-dotterel-993276.hostingersite.com/projects/Office-Mangement-System---Front/.output/
+          rsync -avz -e "ssh -p ${{ secrets.FTP_PORT }}" .output/ ${{ secrets.FTP_USERNAME }}@${{ secrets.FTP_SERVER }}:/home/u782169281/domains/pink-dotterel-993276.hostingersite.com/projects/Office-Mangement-System---Front/.output/
