@@ -17,7 +17,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24 # Gamitin na natin ang Node 24 para 2026-ready
           cache: 'pnpm'
 
       - name: Install Dependencies
@@ -29,11 +29,11 @@ jobs:
       - name: Deploy via SFTP
         uses: easingthemes/ssh-deploy@v5.1.0
         with:
-          SSH_PRIVATE_KEY: "" # Iwanang empty dahil password ang gamit
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          PASSPHRASE: ${{ secrets.SSH_PASSPHRASE }} 
           REMOTE_HOST: ${{ secrets.FTP_SERVER }}
           REMOTE_USER: ${{ secrets.FTP_USERNAME }}
           REMOTE_PORT: ${{ secrets.FTP_PORT }}
-          PASSWORD: ${{ secrets.FTP_PASSWORD }}
           SOURCE: ".output/"
           TARGET: "/home/u782169281/domains/pink-dotterel-993276.hostingersite.com/projects/Office-Mangement-System---Front/.output/"
-          ARGS: "-rlgoDzvc -i" # Mabilis na sync
+          ARGS: "-rlgoDzvc -i"
