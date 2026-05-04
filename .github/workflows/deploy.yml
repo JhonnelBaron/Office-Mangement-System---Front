@@ -2,17 +2,11 @@ name: Auto Deploy Nuxt (SFTP)
 
 on:
   push:
-    branches:
-      - main
-
-# Idinagdag natin ito para mawala ang Node.js 20 warning
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+    branches: [ main ]
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -23,7 +17,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: 20
           cache: 'pnpm'
 
       - name: Install Dependencies
@@ -33,12 +27,13 @@ jobs:
         run: pnpm run build
 
       - name: Deploy via SFTP
-        uses: wlixcc/SFTP-Deploy-Action@v1.2.4
+        uses: easingthemes/ssh-deploy@v5.1.0
         with:
-          server: ${{ secrets.FTP_SERVER }}
-          port: ${{ secrets.FTP_PORT }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          local_path: .output/
-          remote_path: /home/u782169281/domains/pink-dotterel-993276.hostingersite.com/projects/Office-Mangement-System---Front/.output/
-          delete_remote_files: true
+          SSH_PRIVATE_KEY: "" # Iwanang empty dahil password ang gamit
+          REMOTE_HOST: ${{ secrets.FTP_SERVER }}
+          REMOTE_USER: ${{ secrets.FTP_USERNAME }}
+          REMOTE_PORT: ${{ secrets.FTP_PORT }}
+          PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          SOURCE: ".output/"
+          TARGET: "/home/u782169281/domains/pink-dotterel-993276.hostingersite.com/projects/Office-Mangement-System---Front/.output/"
+          ARGS: "-rlgoDzvc -i" # Mabilis na sync
