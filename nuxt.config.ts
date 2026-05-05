@@ -13,17 +13,32 @@ export default defineNuxtConfig({
     // Tinitiyak na sa root domain magsisimula ang lahat ng paths
     baseURL: '/',
     buildAssetsDir: '/_nuxt/',
+    head: {
+      meta: [
+        { charset: 'utf-8' },
+        { name: 'viewport', content: 'width=device-width, initial-scale=1' }
+      ]
+    }
+  },
+
+  // 2. Nitro Configuration - Importante para sa Static Hosting (Hostinger)
+  nitro: {
+    prerender: {
+      // Pinipilit si Nuxt na i-generate ang index.html sa root
+      routes: ['/'] 
+    },
+    // Sinisigurado na ang output ay compatible sa standard static server
+    serveStatic: true
   },
 
   experimental: {
     // KRITIKAL: Ito ang papatay sa "Cannot read properties of undefined (reading 'entries')" error.
-    // Pinipigilan nito si Nuxt na maghanap ng maliliit na json files na madalas mag-404 sa Hostinger.
     payloadExtraction: false 
   },
 
   runtimeConfig: {
     public: {
-      // @ts-ignore
+      // I-inject ang API URL mula sa GitHub Secrets
       apiBase: process.env.NUXT_PUBLIC_API_BASE || '' 
     }
   },
@@ -32,4 +47,9 @@ export default defineNuxtConfig({
     '~/plugins/axios.js',
     '~/plugins/pusher.js',
   ],
+
+  // Sinisigurado na walang conflict sa imports
+  imports: {
+    dirs: ['stores']
+  }
 })
