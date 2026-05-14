@@ -28,22 +28,20 @@ jobs:
         env:
           NUXT_PUBLIC_API_BASE: ${{ secrets.NUXT_PUBLIC_API_BASE }}
 
+      - name: Install SSH Key
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          ssh-passphrase: ${{ secrets.SSH_PASSPHRASE }} # Awtomatikong i-uunlock nito ang key
+
       - name: Deploy via Native Rsync
-        env:
-          SSH_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         run: |
-          # 1. Setup SSH directory
+          # 1. I-scan ang fingerprint (para hindi magtanong ng yes/no)
           mkdir -p ~/.ssh
-          chmod 700 ~/.ssh
-
-          # 2. Isulat ang key gamit ang printf
-          printf "%s\n" "$SSH_KEY" > ~/.ssh/deploy_key
-          chmod 600 ~/.ssh/deploy_key
-
-          # 3. I-scan ang fingerprint
           ssh-keyscan -p 65002 77.37.78.239 >> ~/.ssh/known_hosts
 
-          # 4. I-run ang Rsync
-          rsync -avz -e "ssh -p 65002 -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
+          # 2. I-run ang Rsync (Wala na yung -i deploy_key dahil handle na ng ssh-agent)
+          # PAALALA: Check mo yung 'Mangement' vs 'Management' sa baba!
+          rsync -avz -e "ssh -p 65002 -o StrictHostKeyChecking=no" \
           .output/ \
-          u782169281@77.37.78.239:/home/u782169281/domains/pink-dotterel-993276.hostingersite.com/projects/Office-Mangement-System---Front/.output/
+          u782169281@77.37.78.239:/home/u782169281/domains/pink-dotterel-993276.hostingersite.com/projects/Office-Management-System---Front/.output/
