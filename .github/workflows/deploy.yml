@@ -36,12 +36,17 @@ jobs:
 
       - name: Deploy via Native Rsync
         run: |
-          # 1. I-scan ang fingerprint (para hindi magtanong ng yes/no)
+          # 1. Setup SSH and Scan fingerprint
           mkdir -p ~/.ssh
           ssh-keyscan -p 65002 77.37.78.239 >> ~/.ssh/known_hosts
 
-          # 2. I-run ang Rsync (Wala na yung -i deploy_key dahil handle na ng ssh-agent)
-          # PAALALA: Check mo yung 'Mangement' vs 'Management' sa baba!
+          # 2. Siguraduhin na nage-exist ang project folder sa server (Parang mkdir -p)
+          # Gagamit tayo ng ssh command para gawin ang folder kung wala pa
+          ssh -p 65002 u782169281@77.37.78.239 "mkdir -p /home/u782169281/domains/pink-dotterel-993276.hostingersite.com/projects/Office-Management-System---Front/"
+
+          # 3. I-run ang Rsync
+          # Pansinin: Inalis ko ang '.output' sa dulo ng destination. 
+          # Ang mangyayari: ang LAMAN ng local '.output' ay mapupunta sa loob ng 'Office-Management-System---Front'
           rsync -avz -e "ssh -p 65002 -o StrictHostKeyChecking=no" \
           .output/ \
-          u782169281@77.37.78.239:/home/u782169281/domains/pink-dotterel-993276.hostingersite.com/projects/Office-Management-System---Front/.output/
+          u782169281@77.37.78.239:/home/u782169281/domains/pink-dotterel-993276.hostingersite.com/projects/Office-Management-System---Front/
