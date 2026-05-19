@@ -1,81 +1,114 @@
 <template>
-    <div>
-      <!-- Modal for Time In -->
-      <div v-if="showTimeInModal" class="time-in-modal">
-        <div class="modal-content">
-          <h2>Time In</h2>
-          <p>You have logged in today at: {{ timeIn }}</p>
-          <button class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-200" @click="closeModal">Close</button>
-        </div>
+  <div>
+    <div v-if="showTimeInModal" class="time-in-modal">
+      <div class="modal-content shadow-2xl border border-gray-100">
+        <h2 class="text-xl font-bold text-gray-800 mb-2">Time In</h2>
+        <p class="text-gray-600 mb-4">
+          You have logged in today at: <span class="font-bold text-blue-600">{{ timeInDisplay }}</span>
+        </p>
+        <button class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-200 font-medium" @click="closeModal">
+          Close
+        </button>
       </div>
     </div>
-  </template>
+  </div>
+</template>
+
+<script setup>
+import { ref, onMounted } from 'vue';
+
+const showTimeInModal = ref(false);
+const timeInDisplay = ref('');
+
+// Bind core session user identity cookie
+const userCookie = useCookie('user');
+
+const checkTimeIn = () => {
+  // 1. Safely capture and parse the user profile cookie to find the Unique User ID
+  const rawUser = userCookie.value;
+  let parsedUser = null;
   
-  <script>
-  export default {
-    data() {
-      return {
-        showTimeInModal: false,
-        timeIn: null, // Store the timeIn value here
-      };
-    },
-    mounted() {
-      this.checkTimeIn();
-    },
-    methods: {
-      checkTimeIn() {
-        // Get user info and the stored time-in from localStorage
-        const user = JSON.parse(localStorage.getItem('user'));
-        const lastLoginDate = localStorage.getItem('lastLoginDate');
-        const lastTimeIn = localStorage.getItem('timeIn');
-  
-        // Get current date and time
-        const now = new Date();
-        const currentDate = now.toISOString().split('T')[0];
-        const currentTime = now.getHours() + ":" + now.getMinutes();
-  
-        // Define the cutoff times (4:00 AM and 12:00 AM)
-        const fourAM = new Date();
-        fourAM.setHours(4, 0, 0, 0); // 4:00 AM
-        const midnight = new Date();
-        midnight.setHours(0, 0, 0, 0); // Midnight (start of the day)
-  
-        // Check if current time is valid and if this is the first login of the day
-        if (now > fourAM && (!lastLoginDate || lastLoginDate !== currentDate)) {
-          this.showTimeInModal = true;
-          this.timeIn = lastTimeIn;
-  
-          // Update localStorage with the current login date
-          localStorage.setItem('lastLoginDate', currentDate);
-          localStorage.setItem('timeIn', lastTimeIn); // Update with time in from the backend
-        }
-      },
-      closeModal() {
-        this.showTimeInModal = false;
-      }
+  if (rawUser) {
+    try {
+      const decoded = typeof rawUser === 'string' ? decodeURIComponent(rawUser) : rawUser;
+      parsedUser = typeof decoded === 'string' ? JSON.parse(decoded) : decoded;
+    } catch (e) {
+      console.error("Failed to parse core user attributes:", e);
     }
-  };
-  </script>
-  
-  <style scoped>
-  .time-in-modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.7);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 999;
   }
-  
-  .modal-content {
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    text-align: center;
+
+  // Guard Clause: Kung walang naka-login na user, huwag patakbuhin ang modal engine
+  if (!parsedUser || !parsedUser.id) {
+    console.warn("No valid user profile context found. Skipping isolation tracking pass.");
+    return;
   }
-  </style>
-  
+
+  const userId = parsedUser.id;
+
+  // 2. Dynamically instantiate per-user isolated cookies using the User ID as a suffix
+  const userLoginDateCookie = useCookie(`lastLoginDate_${userId}`, { path: '/' });
+  const userTimeInCookie = useCookie(`timeIn_${userId}`, { path: '/' });
+
+  const now = new Date();
+  const currentDate = now.toISOString().split('T')[0];
+
+  // 3. Generate an immediate fallback format of the current system execution moment
+  const hours = now.getHours();
+  const minutes = now.getMinutes();
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+  const displayHours = hours % 12 || 12;
+  const displayMinutes = minutes < 10 ? '0' + minutes : minutes;
+  const currentSystemTime = `${displayHours}:${displayMinutes} ${ampm}`;
+
+  // 4. Resolve the correct isolated time parameter value
+  const evaluatedTime = userTimeInCookie.value || parsedUser?.last_time_in || currentSystemTime;
+  timeInDisplay.value = evaluatedTime;
+
+  // 5. Operational control window evaluation logic (Triggers after 4:00 AM framework marker resets)
+  const fourAM = new Date();
+  fourAM.setHours(4, 0, 0, 0);
+
+  const lastLoginDate = userLoginDateCookie.value;
+
+  // Verification pass execution block per isolated account id
+  if (now > fourAM && (!lastLoginDate || lastLoginDate !== currentDate)) {
+    showTimeInModal.value = true;
+
+    // Hard-commit configuration tracking changes into the dynamic isolated cookie keys
+    userLoginDateCookie.value = currentDate;
+    userTimeInCookie.value = evaluatedTime;
+  }
+};
+
+const closeModal = () => {
+  showTimeInModal.value = false;
+};
+
+onMounted(() => {
+  checkTimeIn();
+});
+</script>
+
+<style scoped>
+.time-in-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(2px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.modal-content {
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  text-align: center;
+  min-width: 320px;
+}
+</style>

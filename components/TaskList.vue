@@ -18,7 +18,7 @@
             <div class="flex-grow">
               <h3 class="text-xl font-semibold">{{ task.title }}</h3>
               <div class="text-gray-600 text-sm mt-2">
-                <p v-if="task.description" class="mt-1">Subject: {{ task.description }}</p>
+                <p v-if="task.description" class="mt-1">Task: {{ task.description }}</p>
                 <p v-if="task.link" class="mt-1">
                   Link:
                   <a :href="task.link" target="_blank" class="text-blue-600 hover:underline">
@@ -100,6 +100,7 @@
             <option value="Program">Program</option>
             <option value="Activities">Activities</option>
             <option value="Projects">Projects</option>
+            <option value="Routeslips">Routeslips</option>
           </select>
         </div>
 

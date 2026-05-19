@@ -26,6 +26,12 @@
           </NuxtLink>
         </div>
         
+        <div v-if="user?.user_type === 'chief'">
+          <NuxtLink to="/chief" class="group flex items-center justify-center gap-2 w-full py-4 bg-slate-900 text-white rounded-2xl font-bold hover:scale-[1.02] active:scale-95 transition-all duration-200 shadow-xl shadow-slate-200">
+            <span>Return to Dashboard</span>
+            <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
+        </NuxtLink>
+        </div>
         <div v-else-if="user?.user_type === 'admin'">
           <NuxtLink to="/admin" class="group flex items-center justify-center gap-2 w-full py-4 bg-indigo-600 text-white rounded-2xl font-bold hover:bg-indigo-700 hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-indigo-100">
             <span>Admin Control Panel</span>
@@ -44,14 +50,20 @@
   </div>
 </template>
 <script setup>
-import { onMounted, ref } from 'vue';
+import { computed } from 'vue';
 
-const user = ref(null);
+const userCookie = useCookie('user');
 
-onMounted(() => {
-  const userData = localStorage.getItem('user');
-  if (userData) {
-    user.value = JSON.parse(userData);
+const user = computed(() => {
+  const rawData = userCookie.value;
+  if (!rawData) return null;
+
+  try {
+    const decoded = typeof rawData === 'string' ? decodeURIComponent(rawData) : rawData;
+    return typeof decoded === 'string' ? JSON.parse(decoded) : decoded;
+  } catch (error) {
+    console.error("Failed to safely parse user cookie context:", error);
+    return null;
   }
 });
 </script>

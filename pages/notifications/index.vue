@@ -157,11 +157,14 @@
           </section>
         </div>
 
-        <div class="p-6 border-t bg-gray-50 flex gap-3">
-          <button class="flex-1 bg-blue-600 text-white py-4 rounded-xl font-bold text-sm hover:bg-blue-700 transition shadow-md">
-            Create Task to take action
-          </button>
-        </div>
+      <div class="p-6 border-t bg-gray-50 flex gap-3">
+        <button 
+          @click="handleCreateTask"
+          class="flex-1 bg-blue-600 text-white py-4 rounded-xl font-bold text-sm hover:bg-blue-700 transition shadow-md active:scale-95"
+        >
+          Create Task to take action
+        </button>
+      </div>
       </div>
     </Transition>
 
@@ -177,6 +180,8 @@ const notifStore = useNotificationStore();
 const selectedNotif = ref(null);
 const route = useRoute();
 const searchQuery = ref('');
+
+const userCookie = useCookie('user');
 
 definePageMeta({ layout: 'employee' });
 
@@ -222,6 +227,23 @@ const hasReference = (ref) => {
   return ref && ref !== '-' && ref !== 'N/A' && ref.startsWith('http');
 };
 
+const handleCreateTask = () => {
+  // Guard clause: Siguraduhing may napiling notification bago mag-redirect
+  if (!selectedNotif.value) return;
+
+  const notif = selectedNotif.value;
+
+  // Programmatic Navigation
+  navigateTo({
+    path: '/employee/tasking',
+    query: {
+      subject: notif.r_subject,
+      paps: 'Routeslips',
+      ref_no: notif.routeslip_no // Dinagdag ko na rin ito para complete reference
+    }
+  });
+};
+
 const openReference = (url) => {
   if (!url) return;
   const width = 1100;
@@ -232,9 +254,21 @@ const openReference = (url) => {
 };
 
 const goToRecord = (notif) => {
-  const userStr = localStorage.getItem('user');
-  const user = userStr ? JSON.parse(userStr) : {};
-  navigateTo(`/${user?.user_type || 'employee'}/routeslips/${notif.id}`);
+  // Resolve core account identities directly through cookie string extraction
+  const rawData = userCookie.value;
+  let user = {};
+
+  if (rawData) {
+    try {
+      const decoded = typeof rawData === 'string' ? decodeURIComponent(rawData) : rawData;
+      user = typeof decoded === 'string' ? JSON.parse(decoded) : decoded;
+    } catch (e) {
+      console.error("Failed to parse user profile context in notification layout:", e);
+    }
+  }
+
+  // Redirect cleanly based on evaluated profile access roles
+  return navigateTo(`/${user?.user_type || 'employee'}/routeslips/${notif.id}`);
 };
 
 const formatTimestamp = (date) => {

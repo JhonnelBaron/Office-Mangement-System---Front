@@ -49,20 +49,31 @@ import { storeToRefs } from 'pinia'
 
 const notifStore = useNotificationStore()
 const { unreadCount } = storeToRefs(notifStore)
+const userCookie = useCookie('user')
+const currentUser = computed(() => {
+  const rawData = userCookie.value
+  if (!rawData) return null
 
+  try {
+    const decoded = typeof rawData === 'string' ? decodeURIComponent(rawData) : rawData
+    return typeof decoded === 'string' ? JSON.parse(decoded) : decoded
+  } catch (error) {
+    console.error("Failed to resolve user session profile within layout navigation:", error)
+    return null
+  }
+})
 const handleLogout = async () => {
   await logoutUser()
 }
 
 onMounted(() => {
-  const userData = localStorage.getItem('user')
-  if (userData) {
-    const user = JSON.parse(userData)
-    const userId = user.id || user.user_id; 
+  const user = currentUser.value
+  if (user) {
+    const userId = user.id || user.user_id
 
     if (userId) {
-      notifStore.fetchNotifications() 
-      notifStore.listenForNotifications(userId) 
+      notifStore.fetchNotifications()
+      notifStore.listenForNotifications(userId)
     }
   }
 })

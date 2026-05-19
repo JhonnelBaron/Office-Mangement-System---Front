@@ -85,6 +85,10 @@
   const error = ref('');
   const showPassword = ref(false);
   const isResetSuccessful = ref(false); // Tracks if reset was successful
+
+  const tokenCookie = useCookie('auth_token');
+  const userCookie = useCookie('user');
+  const timeInCookie = useCookie('timeIn');
   
   const togglePasswordVisibility = () => {
     showPassword.value = !showPassword.value;
@@ -107,6 +111,10 @@
       message.value = response.data.message;
       isResetSuccessful.value = true; // Mark as successful
       error.value = '';
+
+      tokenCookie.value = null;
+      userCookie.value = null;
+      timeInCookie.value = null;
     } catch (err) {
       error.value = err.response?.data?.message || 'Something went wrong';
       message.value = '';

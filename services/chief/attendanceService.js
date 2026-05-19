@@ -1,11 +1,11 @@
 export const getAttendance = async () => {
     const { $api } = useNuxtApp();
-    const token = localStorage.getItem('auth_token');
+    const token = useCookie('auth_token');
   
     try {
       const response = await $api.get('/attendance', {
         headers: {
-          Authorization: `Bearer ${token}`
+          Authorization: `Bearer ${token.value}`
         }
       });
       return response.data.attendance;
@@ -16,12 +16,12 @@ export const getAttendance = async () => {
 
 export const getEmployees = async () => {
     const { $api } = useNuxtApp();
-    const token = localStorage.getItem('auth_token');
+    const token = useCookie('auth_token');
 
     try{
         const response = await $api.get('/employees', {
             headers: {
-                Authorization: `Bearer ${token}`
+                Authorization: `Bearer ${token.value}`
             }
         });
         return response.data.employees;

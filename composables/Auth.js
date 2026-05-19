@@ -1,80 +1,23 @@
-import { ref, nextTick } from 'vue';
+import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import FingerprintJS from '@fingerprintjs/fingerprintjs'; 
-import { timeoutUser } from '@/services/authService';  // Adjust the path based on where timeoutUser is defined
+import { timeoutUser } from '@/services/authService'; 
 
 export const Auth = () => {
     const email = ref('');
     const password = ref('');
     const error = ref(null);
-    const deviceFingerprint = ref(null);  
-    const timeIn = ref(true);  // Default to "Time In"
+    const timeIn = ref(true);  // Default state tracking for attendance entry
     const router = useRouter();
-    const pictureData = ref(null);  // To store the captured picture data   
-
-    const generateFingerprint = async () => {
-        const fp = await FingerprintJS.load();
-        const result = await fp.get();
-        deviceFingerprint.value = result.visitorId;  
-        console.log("Generated Fingerprint:", deviceFingerprint.value);
-    };
-
-    generateFingerprint();
-
-    // const handleLogin = async () => {
-    //     try {
-    //         if (timeIn.value) {
-    //             // Handle "Time In"
-    //             console.log("Attempting Time In with", email.value, password.value);
-
-    //             const loginData = {
-    //                 email: email.value,
-    //                 password: password.value,
-    //                 deviceFingerprint: deviceFingerprint.value,
-    //             };
-
-    //             // If a picture is captured, add it to the login data
-    //             if (pictureData.value) {
-    //                 loginData.photo = pictureData.value;  // Add photo data
-    //             }
-
-    //             const response = await useNuxtApp().$api.post('/login', loginData);
-
-    //             // Store the token and keep the user on the same page
-    //             if (response.data.access_token) {
-    //                 localStorage.setItem('auth_token', response.data.access_token);
-    //                 localStorage.setItem('user', JSON.stringify(response.data));
-    //                 localStorage.setItem('timeIn', new Date().toLocaleTimeString());
-                    
-    //                 // Do not redirect immediately, wait for camera modal to complete
-    //                 return true; // Success
-    //             }
-    //         } else {
-    //         // Handle "Time Out"
-    //         console.log("Attempting Time Out");
-
-    //         // Make sure to pass email and password here as well when calling timeoutUser
-    //         const timeoutData = {
-    //             email: email.value,
-    //             password: password.value,
-    //         };
-            
-    //         await timeoutUser(timeoutData); // Call timeoutUser with credentials
-    //             localStorage.removeItem('auth_token');
-    //             localStorage.removeItem('user');
-    //             router.push('/login'); // Replace with the correct route
-    //         }
-    //     } catch (err) {
-    //         console.error("Error:", err);
-    //         error.value = err.response?.data?.error || 'Action failed. Please try again.';
-    //         return false;
-    //     }
-    // };
+    const pictureData = ref(null);   
 
     const handleLogin = async () => {
         try {
+          // Initialize unified cookie management states
+          const tokenCookie = useCookie('auth_token', { maxAge: 60 * 60 * 24 * 7, path: '/' });
+          const userCookie = useCookie('user', { maxAge: 60 * 60 * 24 * 7, path: '/' });
+          const timeInCookie = useCookie('timeIn', { maxAge: 60 * 60 * 24 * 7, path: '/' });
+
           if (timeIn.value) {
-            // Handle "Time In"
             console.log("Attempting Time In with", email.value, password.value);
       
             if (!email.value || !password.value) {
@@ -84,8 +27,7 @@ export const Auth = () => {
       
             const loginData = {
               email: email.value,
-              password: password.value,
-              deviceFingerprint: deviceFingerprint.value,
+              password: password.value
             };
       
             if (pictureData.value) {
@@ -95,9 +37,10 @@ export const Auth = () => {
             const response = await useNuxtApp().$api.post('/login', loginData);
       
             if (response.data.access_token) {
-              localStorage.setItem('auth_token', response.data.access_token);
-              localStorage.setItem('user', JSON.stringify(response.data));
-              localStorage.setItem('timeIn', new Date().toLocaleTimeString());
+              // Commit application state profiles strictly to cookies for SSR validation
+              tokenCookie.value = response.data.access_token;
+              userCookie.value = JSON.stringify(response.data);
+              timeInCookie.value = new Date().toLocaleTimeString();
       
               return true; 
             } else {
@@ -105,7 +48,6 @@ export const Auth = () => {
               return false; 
             }
           } else {
-            // Handle "Time Out"
             console.log("Attempting Time Out");
       
             if (!email.value || !password.value) {
@@ -120,13 +62,16 @@ export const Auth = () => {
       
             const response = await timeoutUser(timeoutData); 
 
-            console.log("🚀 Full API Response for Logout:", response); // Debugging line
+            console.log("🚀 Full API Response for Logout:", response); 
             
-            // 🔥 Check if response is a string (since API returns only a timestamp)
             if (typeof response === "string") {
                 console.log("✅ Received string response:", response);
-                localStorage.removeItem('auth_token');
-                localStorage.removeItem('user');
+                
+                // Clear out active cookie credentials upon tracking termination
+                tokenCookie.value = null;
+                userCookie.value = null;
+                timeInCookie.value = null;
+
                 router.push('/login');
                 return 'logged out';
             } else {
@@ -134,7 +79,6 @@ export const Auth = () => {
                 error.value = 'Logout failed. Please try again.';
                 return false;
             }
-            
           }
         } catch (err) {
           console.error("🔥 Error during login/logout:", err);
@@ -143,21 +87,17 @@ export const Auth = () => {
         }
       };
       
-
-    // Function to save the captured picture when it's available
     const saveCapturedPicture = (imageData) => {
-        pictureData.value = imageData;  // Store the image data
+        pictureData.value = imageData;  
         console.log("Captured image data:", imageData);
-
-        // Optionally, you can now upload the picture or store it as needed
     };
     
     return {
         email,
         password,
-        timeIn,  // Expose timeIn state
+        timeIn,  
         error,
-        pictureData,  // Expose the picture data ref
+        pictureData,  
         saveCapturedPicture,
         handleLogin,
     };

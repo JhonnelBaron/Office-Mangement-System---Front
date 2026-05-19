@@ -119,6 +119,8 @@ const { email, password, timeIn, error, handleLogin } = Auth();
 const showPassword = ref(false); // Control password visibility
 const isCameraModalOpen = ref(false); // Control the camera modal visibility.
 
+const photoUrlCookie = useCookie('photoUrl', { maxAge: 60 * 60 * 24 * 7, path: '/' });
+
 // const timeIn = ref(true); // Toggle for Time In / Time Out
 
 // Toggle password visibility
@@ -199,7 +201,8 @@ const handleLoginWithCamera = async () => {
           showConfirmButton: false,
           timer: 1500, // Auto-close after 1.5 seconds
         }).then(() => {
-          clearFields(); // Optionally clear fields after logout    
+          clearFields(); // Optionally clear fields after logout  
+          photoUrlCookie.value = null;  
         });
       } else {
         error.value = 'Logout failed. Please try again.';
@@ -221,8 +224,7 @@ const saveCapturedPicture = async (imageData) => {
 
     console.log('Photo upload response:', response);
 
-    // Save the photo URL (or data) to localStorage if needed
-    localStorage.setItem('photoUrl', response.photoUrl || '');
+    photoUrlCookie.value = response.photoUrl || '';
 
     // Proceed to submit the "Time In" data
     isCameraModalOpen.value = false; // Close the camera modal

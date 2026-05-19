@@ -135,6 +135,9 @@ const tasksDone = ref(0);
 const tasksSuspended = ref(0);
 const tasksInProgress = ref(0);
 const userAttendance = ref(null); // Add a new reactive variable for attendance data
+const userName = ref('');
+
+const userCookie = useCookie('user');
 
 // Register Chart.js components
 ChartJS.register(LineElement, PointElement, CategoryScale, LinearScale, Title, Tooltip, Legend);
@@ -213,34 +216,48 @@ const updateChartData = (attendance) => {
 
     })
 
-    const userName = ref('');
 
-    onMounted(async () => {
-  if (import.meta.client) {
-    // Retrieve user name from localStorage
-    const userString = localStorage.getItem('user');
-    const user = userString ? JSON.parse(userString) : null;
-    userName.value = user?.first_name || 'Guest';
 
-    // Fetch tasks data
+onMounted(async () => {
+  // Extract and compile profile properties cleanly from active session cookies
+  const rawData = userCookie.value;
+  let userData = null;
+
+  if (rawData) {
     try {
-      const tasks = await getTasks();
-      tasksToday.value = tasks.tasks_today;
-      tasksThisCutoff.value = tasks.tasks_this_cutoff;
-      tasksDone.value = tasks.tasks_done;
-      tasksSuspended.value = tasks.tasks_suspended;
-      tasksInProgress.value = tasks.tasks_in_progress;
-    } catch (error) {
-      console.error('Failed to fetch tasks:', error);
+      const decoded = typeof rawData === 'string' ? decodeURIComponent(rawData) : rawData;
+      userData = typeof decoded === 'string' ? JSON.parse(decoded) : decoded;
+    } catch (e) {
+      console.error("Failed to parse user profile context within employee dashboard view:", e);
     }
+  }
 
+  // Bind parameters properly to enable correct tracking actions
+  userName.value = userData?.first_name || 'Guest';
+
+  // Fetch tasks data
+  try {
+    const tasks = await getTasks();
+    tasksToday.value = tasks.tasks_today;
+    tasksThisCutoff.value = tasks.tasks_this_cutoff;
+    tasksDone.value = tasks.tasks_done;
+    tasksSuspended.value = tasks.tasks_suspended;
+    tasksInProgress.value = tasks.tasks_in_progress;
+  } catch (error) {
+    console.error('Failed to fetch tasks:', error);
+  }
+
+  // Invoke employee verification logs safely by utilizing the parsed cookie profile ID
+  if (userData?.id) {
     try {
-      const attendance = await getUserAttendance(user?.id); // Pass user ID if needed
+      const attendance = await getUserAttendance(userData.id); 
       userAttendance.value = attendance || null;
-      updateChartData(attendance); // Update chart data
+      updateChartData(attendance); 
     } catch (error) {
-      console.error('Failed to fetch user attendance:', error);
+      console.error('Failed to fetch user attendance logs:', error);
     }
+  } else {
+    console.warn("Unable to trigger user tracking parameters: Missing account validation id context.");
   }
 });
 
