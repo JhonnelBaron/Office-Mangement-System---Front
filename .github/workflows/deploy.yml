@@ -28,6 +28,13 @@ jobs:
         env:
           NUXT_PUBLIC_API_BASE: ${{ secrets.NUXT_PUBLIC_API_BASE }}
 
+      # 1. Idinagdag ang generate para malikha ang mga static sub-folders (gaya ng /unauthorized)
+      - name: Generate Static Pages (SPA)
+        run: pnpm run generate
+        env:
+          NUXT_PUBLIC_API_BASE: ${{ secrets.NUXT_PUBLIC_API_BASE }}
+
+      # 2. In-update ang Rsync para kunin ang 'dist/' folder at may '--delete' para linisin ang mga luma sa server
       - name: Deploy via Native Rsync
         env:
           SSH_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
@@ -43,7 +50,7 @@ jobs:
           # 3. I-scan ang fingerprint
           ssh-keyscan -p 65002 77.37.78.239 >> ~/.ssh/known_hosts
 
-          # 4. I-run ang Rsync
-          rsync -avz -e "ssh -p 65002 -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
-          .output/ \
-          u782169281@77.37.78.239:/home/u782169281/domains/pink-dotterel-993276.hostingersite.com/projects/Office-Mangement-System---Front/.output/
+          # 4. I-run ang Rsync mula sa dist/ papunta sa public_html ng Hostinger mo
+          rsync -avz --delete -e "ssh -p 65002 -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
+          dist/ \
+          u782169281@77.37.78.239:/home/u782169281/domains/pink-dotterel-993276.hostingersite.com/projects/Office-Mangement-System---Front/public_html/
