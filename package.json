@@ -14,13 +14,13 @@
     "@fingerprintjs/fingerprintjs": "^4.6.2",
     "@pinia/nuxt": "^0.11.3",
     "apexcharts": "^4.7.0",
-    "axios": "^1.15.2",
+    "axios": "^1.16.1",
     "chart.js": "^3.9.1",
     "chartjs-adapter-date-fns": "^3.0.0",
     "cors": "^2.8.6",
     "crypto-js": "^4.2.0",
     "flowbite": "^2.5.2",
-    "nuxt": "^3.21.4",
+    "nuxt": "^3.21.6",
     "pinia": "^3.0.4",
     "sweetalert2": "^11.26.24",
     "vue": "latest",
@@ -32,9 +32,16 @@
   "devDependencies": {
     "@nuxt/eslint-config": "^1.15.2",
     "@nuxtjs/tailwindcss": "^6.14.0",
-    "@types/node": "^22.19.17",
-    "eslint": "^10.2.1",
+    "@types/node": "^22.19.19",
+    "eslint": "^10.4.0",
     "laravel-echo": "^1.19.0",
     "pusher-js": "8.4.0-rc2"
+  },
+  "pnpm": {
+    "overrides": {
+      "devalue@>=5.6.3 <=5.8.0": ">=5.8.1",
+      "brace-expansion@>=5.0.0 <5.0.6": ">=5.0.6",
+      "ws@>=8.0.0 <8.20.1": ">=8.20.1"
+    }
   }
 }
