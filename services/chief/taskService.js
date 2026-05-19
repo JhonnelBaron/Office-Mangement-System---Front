@@ -1,11 +1,11 @@
 export const getTasks = async () => {
     const { $api } = useNuxtApp();
-    const token = localStorage.getItem('auth_token');
+    const token = useCookie('auth_token');
   
     try {
       const response = await $api.get('/userTasks', {
         headers: {
-          Authorization: `Bearer ${token}`
+          Authorization: `Bearer ${token.value}`
         }
       });
       return response.data.tasks;
@@ -16,12 +16,12 @@ export const getTasks = async () => {
 
   export const getTasksCount = async () => {
     const { $api } = useNuxtApp();
-    const token = localStorage.getItem('auth_token');
-  
+    const token = useCookie('auth_token');
+
     try {
       const response = await $api.get('/tasks-count', {
         headers: {
-          Authorization: `Bearer ${token}`
+          Authorization: `Bearer ${token.value}`
         }
       });
       return response.data;

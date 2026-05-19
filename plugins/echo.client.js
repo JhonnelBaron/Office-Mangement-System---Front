@@ -6,8 +6,8 @@ export default defineNuxtPlugin(() => {
   const config = useRuntimeConfig()
   window.Pusher = Pusher
 
-  // Kunin ang token bago i-initialize ang Echo
-  const token = localStorage.getItem('auth_token')
+  const tokenCookie = useCookie('auth_token')
+  const token = tokenCookie.value
   const echo = new Echo({
     broadcaster: 'pusher',
     key: '3d3383452fb5db324a27',

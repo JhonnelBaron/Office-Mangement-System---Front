@@ -1,22 +1,30 @@
 <template>
   <div class="p-6">
-    <div class="flex justify-between items-center mb-6">
-      <h2 class="text-2xl font-bold">Tasking</h2>
-      <div class="ml-[800px] mt-0 hover:underline"> <ReportGenerator :tasks="filteredTasks" :cutoff-date-range="cutoffDateRange" :selected-cutoff="selectedCutoff" />
-      </div>
+<div class="flex justify-between items-center mb-6">
+  <h2 class="text-2xl font-bold">Tasking</h2>
 
-      <!-- Add Task Text Link with Plus Icon -->
-      <div
-class="flex items-center cursor-pointer text-blue-600 hover:underline"   :class="{ 'text-gray-400 cursor-not-allowed': hasInProgressTask }"
-  :disabled="hasInProgressTask"
-  @click="handleAddTaskClick"
->
-        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-        </svg>
-        <span>Add Task</span>
-      </div>
+  <div class="flex items-center gap-4"> 
+    <div class="hover:underline">
+      <ReportGenerator 
+        :tasks="filteredTasks" 
+        :cutoff-date-range="cutoffDateRange" 
+        :selected-cutoff="selectedCutoff" 
+      />
     </div>
+
+    <div
+      class="flex items-center cursor-pointer text-blue-600 hover:underline"
+      :class="{ 'text-gray-400 cursor-not-allowed': hasInProgressTask }"
+      :disabled="hasInProgressTask"
+      @click="handleAddTaskClick"
+    >
+      <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+      </svg>
+      <span>Add Task</span>
+    </div>
+  </div>
+</div>
 
     <!-- Display Today's Date -->
     <div class="mb-4 text-right text-sm font-medium text-gray-600">
@@ -88,13 +96,14 @@ class="flex items-center cursor-pointer text-blue-600 hover:underline"   :class=
               <option value="Program">Program</option>
               <option value="Activities">Activities</option>
               <option value="Projects">Projects</option>
+              <option value="Routeslips">Routeslips</option>
             </select>
           </div>
 
           <!-- Task Title -->
           <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700">Task</label>
-            <input v-model="newTaskTitle" class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="Enter task (e.g. MOA Review)" required>
+            <label class="block text-sm font-medium text-gray-700">Subject</label>
+            <input v-model="newTaskTitle" class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="Enter Subject (e.g. MOA Review)" required>
           </div>
 
           <!-- Type Dropdown -->
@@ -132,7 +141,7 @@ class="flex items-center cursor-pointer text-blue-600 hover:underline"   :class=
 
           <!-- Description -->
           <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700">Subject</label>
+            <label class="block text-sm font-medium text-gray-700">Task</label>
             <textarea v-model="newTaskDescription" class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="Enter task description (e.g. MOA between TESDA & Philippine Army)" rows="3" required/>
           </div>
         </div>

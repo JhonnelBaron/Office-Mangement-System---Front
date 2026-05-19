@@ -50,6 +50,10 @@
   const message = ref('');
   const error = ref('');
   const isLoading = ref(false);
+
+  const tokenCookie = useCookie('auth_token');
+  const userCookie = useCookie('user');
+  const timeInCookie = useCookie('timeIn');
   
   const handleResetLink = async () => {
     isLoading.value = true;
@@ -57,6 +61,9 @@
       const response = await $api.post('/password/email', { email: email.value });
       message.value = response.data.message;
       error.value = '';
+      tokenCookie.value = null;
+      userCookie.value = null;
+      timeInCookie.value = null;
     } catch (err) {
       error.value = err.response?.data?.message || 'Something went wrong';
       message.value = '';
