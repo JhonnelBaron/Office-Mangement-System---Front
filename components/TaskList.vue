@@ -1,198 +1,252 @@
 <template>
-  <div class="bg-gray-100 min-h-screen p-6">
-    <div class="container mx-auto">
-      <!-- Message for Tasks -->
-      <div v-if="tasks.length" class="text-center text-gray-700 font-semibold mb-4">
-        <p>Eto na nga pala yung ambag mo</p>
+  <div class="task-list-root">
+
+    <!-- Tasks Header Banner -->
+    <div v-if="tasks.length" class="tasks-banner">
+      <div class="banner-inner">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <span>Your contributions for this period — keep it up!</span>
+        <span class="task-count-badge">{{ tasks.length }} {{ tasks.length === 1 ? 'task' : 'tasks' }}</span>
       </div>
-      <!-- Task List Container -->
-      <div v-if="tasks.length" class="space-y-4">
-        <div
-          v-for="task in tasks"
-          :key="task.id"
-          :class="taskBorderClass(task)"
-          class="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
-        >
-          <!-- Task Title and Details Container -->
-          <div class="flex justify-between items-start">
-            <div class="flex-grow">
-              <h3 class="text-xl font-semibold">{{ task.title }}</h3>
-              <div class="text-gray-600 text-sm mt-2">
-                <p v-if="task.description" class="mt-1">Task: {{ task.description }}</p>
-                <p v-if="task.link" class="mt-1">
-                  Link:
-                  <a :href="task.link" target="_blank" class="text-blue-600 hover:underline">
-                    {{ shortenLink(task.link) }}
-                  </a>
-                </p>
-                <p v-if="task.paps" class="mt-1">PAPs: {{ task.paps }}</p>
-                <p v-if="task.type" class="mt-1">Document Type: {{ task.type }}</p>
-                <!-- <p v-if="task.task" class="mt-1">Task: {{ task.task }}</p> -->
-                <p v-if="task.no_of_documents" class="mt-1">Number of Documents: {{ task.no_of_documents }}</p>
-<p v-if="task.document_links.length" class="mt-1">
-  References:
-  <ul>
-    <li v-for="(doc, index) in task.document_links" :key="doc.id">
-      <a :href="doc.document_link" target="_blank" class="text-blue-600 hover:underline">
-        {{ shortenLink(doc.document_link) || `Document ${index + 1}` }}
-      </a>
-    </li>
-  </ul>
-</p>
-                <br>
-                <p>Added: {{ formatDate(task.date_added) }}</p>
-                <p v-if="task.date_finished">Done: {{ formatDate(task.date_finished) }}</p>
-                <p v-if="task.hours_worked">
-                  Hours Worked:
-                  <span v-if="Math.floor(task.hours_worked) > 0">
-                    {{ Math.floor(task.hours_worked) }} hour<span v-if="Math.floor(task.hours_worked) > 1">s</span>
-                  </span>
-                  <span>
-                    {{ ' ' + ((task.hours_worked - Math.floor(task.hours_worked)) * 60).toFixed(0) }} minutes
-                  </span>
-                </p>
+    </div>
+
+    <!-- Task Cards -->
+    <div v-if="tasks.length" class="tasks-grid">
+      <div
+        v-for="task in tasks"
+        :key="task.id"
+        class="task-card"
+        :class="taskSlaClass(task)"
+      >
+        <!-- Left accent bar (SLA color indicator) -->
+        <div class="card-accent"></div>
+
+        <div class="card-body">
+          <!-- Top Row: Title + Status -->
+          <div class="card-header">
+            <div class="card-title-group">
+              <h3 class="card-title">{{ task.title }}</h3>
+              <div v-if="task.description" class="card-description">
+                <span class="field-label">Task:</span> {{ task.description }}
               </div>
             </div>
-
-            <!-- Task Status and Edit Button -->
-            <div class="flex flex-col items-end ml-4">
-              <span
-                :class="{
-                  'text-green-500': task.status === 'Done',
-                  'text-red-500': task.status === 'Suspended',
-                  'text-yellow-500': task.status === 'In Progress'
-                }"
-                class="text-sm font-bold mb-1"
-              >
+            <div class="card-actions">
+              <span class="status-badge" :class="statusClass(task.status)">
+                <span class="status-dot"></span>
                 {{ task.status }}
               </span>
-              <button     
+              <button
                 :disabled="task.status === 'Done'"
-                :class="{ 'text-gray-500 cursor-not-allowed': task.status === 'Done', 'text-blue-600 hover:underline': task.status !== 'Done' }"
+                class="edit-btn"
+                :class="{ 'edit-btn--disabled': task.status === 'Done' }"
                 @click="editTask(task)"
-                  >
-                  Edit
+              >
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                </svg>
+                Edit
               </button>
             </div>
           </div>
-        </div>
-      </div>
 
-      <!-- Message for No Tasks -->
-      <div v-else class="text-center text-gray-500 mt-8">
-        <p>Ayy.. wala ka pang ambag? :(</p>
-        <br><p>baka namannn</p>
-      </div>
+          <!-- Tags Row -->
+          <div class="card-tags">
+            <span v-if="task.paps" class="tag tag--paps">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+              </svg>
+              {{ task.paps }}
+            </span>
+            <span v-if="task.type" class="tag tag--type">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+              </svg>
+              {{ task.type }}
+            </span>
+            <span v-if="task.no_of_documents" class="tag tag--vol">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+              </svg>
+              {{ task.no_of_documents }} doc{{ task.no_of_documents > 1 ? 's' : '' }}
+            </span>
+          </div>
 
-      <!-- Edit Task Modal -->
-      <div v-if="showEditModal" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center">
-  <div class="bg-white p-6 rounded-lg w-full max-w-4xl">
-    <h3 class="text-lg font-bold mb-4">Edit Task</h3>
+          <!-- References -->
+          <div v-if="task.document_links && task.document_links.length" class="card-references">
+            <span class="field-label">References:</span>
+            <ul class="ref-list">
+              <li v-for="(doc, index) in task.document_links" :key="doc.id">
+                <a :href="doc.document_link" target="_blank" class="ref-link">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                  </svg>
+                  {{ shortenLink(doc.document_link) || `Document ${index + 1}` }}
+                </a>
+              </li>
+            </ul>
+          </div>
 
-    <!-- Two-column grid layout -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <!-- Column 1 -->
-      <div>
-        <!-- PAPs -->
-        <div class="mb-4">
-          <label class="block text-sm font-medium text-gray-700">PAPs</label>
-          <select v-model="editedTask.paps" class="w-full px-3 py-2 border border-gray-300 rounded-md">
-            <option value="Program">Program</option>
-            <option value="Activities">Activities</option>
-            <option value="Projects">Projects</option>
-            <option value="Routeslips">Routeslips</option>
-          </select>
-        </div>
-
-        <!-- Title -->
-        <div class="mb-4">
-          <label class="block text-sm font-medium text-gray-700">Task</label>
-          <input v-model="editedTask.title" class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="Enter task (e.g. MOA Review)" >
-        </div>
-
-        <!-- Type -->
-        <div class="mb-4">
-          <label class="block text-sm font-medium text-gray-700">Document Type</label>
-          <select v-model="editedTask.type" class="w-full px-3 py-2 border border-gray-300 rounded-md">
-            <option value="CSW">CSW</option>
-            <option value="Memo">Memo</option>
-            <option value="MOA">MOA</option>
-            <option value="Letter">Letter</option>
-            <option value="MoM">MOM</option>
-            <option value="Email">Email</option>
-            <option value="Others">Others</option>
-          </select>
-          <div v-if="editedTask.type === 'Others'" class="mt-2">
-            <input v-model="editedTask.otherType" class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="Enter document type">
+          <!-- Footer Meta Row -->
+          <div class="card-footer">
+            <div class="meta-dates">
+              <div class="meta-item">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                </svg>
+                <span class="meta-label">Added:</span>
+                <span class="meta-val">{{ formatDate(task.date_added) }}</span>
+              </div>
+              <div v-if="task.date_finished" class="meta-item">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <span class="meta-label">Done:</span>
+                <span class="meta-val">{{ formatDate(task.date_finished) }}</span>
+              </div>
+            </div>
+            <div v-if="task.hours_worked" class="hours-pill">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+              </svg>
+              <span>
+                <span v-if="Math.floor(task.hours_worked) > 0">{{ Math.floor(task.hours_worked) }}h </span>{{ ((task.hours_worked - Math.floor(task.hours_worked)) * 60).toFixed(0) }}m worked
+              </span>
+            </div>
           </div>
         </div>
-
-        <!-- Description -->
-        <div class="mb-4">
-          <label class="block text-sm font-medium text-gray-700">Subject</label>
-          <textarea v-model="editedTask.description" class="w-full px-3 py-2 border border-gray-300 rounded-md" rows="3" placeholder="Enter task description (e.g. MOA between TESDA & Philippine Army)" />
-        </div>
-
-        <!-- Link -->
-        <!-- <div class="mb-4">
-          <label class="block text-sm font-medium text-gray-700">Link</label>
-          <input v-model="editedTask.link" class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="Enter task link" />
-        </div> -->
-
-
-      </div>
-
-      <!-- Column 2 -->
-      <div>
-        <!-- Status -->
-        <div class="mb-4">
-        <label class="block text-sm font-medium text-gray-700">Status</label>
-        <select v-model="editedTask.status" class="w-full px-3 py-2 border border-gray-300 rounded-md">
-            <option value="In Progress">In Progress</option>
-            <option value="Done">Done</option>
-            <option value="Suspended">Suspend</option>
-        </select>
-        </div>
-        
-        <div>
-  <!-- Number of Documents -->
-  <div class="mb-4">
-    <label class="block text-sm font-medium text-gray-700">Number of Documents</label>
-    <input 
-      v-model="editedTask.no_of_document" 
-      type="number" 
-      min="0" 
-      class="w-full px-3 py-2 border border-gray-300 rounded-md" 
-      placeholder="Enter number of documents" 
-      required 
-    >
-  </div>
-
-  <!-- Document Links -->
-  <div>
-    <div v-for="n in editedTask.no_of_document" :key="n" class="mb-4">
-      <label class="block text-sm font-medium text-gray-700">References {{ n }}</label>
-      <input 
-        v-model="editedTask.document_links[n - 1]" 
-        type="url" 
-        class="w-full px-3 py-2 border border-gray-300 rounded-md" 
-        placeholder="Enter document link" 
-      >
-    </div>
-  </div>
-</div>
       </div>
     </div>
 
-    <!-- Actions -->
-    <div class="flex justify-end mt-6">
-      <button class="text-gray-500 mr-4" @click="closeEditModal">Cancel</button>
-      <button class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700" @click="updateTask">Update</button>
+    <!-- Empty State -->
+    <div v-else class="empty-state">
+      <div class="empty-icon">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+        </svg>
+      </div>
+      <h3 class="empty-title">No tasks found</h3>
+      <p class="empty-sub">No contributions logged for this period yet. Add your first task above.</p>
     </div>
-  </div>
-</div>
 
-    </div>
+    <!-- ── Edit Task Modal ── -->
+    <Teleport to="body">
+      <div v-if="showEditModal" class="modal-overlay" @click.self="closeEditModal">
+        <div class="modal-panel">
+
+          <div class="modal-header">
+            <div>
+              <h3 class="modal-title">Edit Task Entry</h3>
+              <p class="modal-sub">Modify your logged task details below.</p>
+            </div>
+            <button class="modal-close" @click="closeEditModal">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
+          </div>
+
+          <div class="modal-body">
+            <div class="form-grid">
+
+              <!-- Left Column -->
+              <div class="form-col">
+                <div class="form-group">
+                  <label class="form-label">PAPs Category</label>
+                  <select v-model="editedTask.paps" class="form-select">
+                    <option value="Program">Program</option>
+                    <option value="Activities">Activities</option>
+                    <option value="Projects">Projects</option>
+                    <option value="Routeslips">Routeslips</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Subject Heading / Task</label>
+                  <input v-model="editedTask.title" class="form-input" placeholder="Enter task title">
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Document Classification</label>
+                  <select v-model="editedTask.type" class="form-select">
+                    <option value="CSW">CSW — Complete Staff Work</option>
+                    <option value="Memo">Memo</option>
+                    <option value="MOA">MOA</option>
+                    <option value="Letter">Letter</option>
+                    <option value="MoM">Minutes of Meeting</option>
+                    <option value="Email">Email</option>
+                    <option value="Others">Others</option>
+                  </select>
+                  <div v-if="editedTask.type === 'Others'" class="mt-2">
+                    <input v-model="editedTask.otherType" class="form-input" placeholder="Specify document type">
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Description / Subject Details</label>
+                  <textarea v-model="editedTask.description" class="form-textarea" rows="3" placeholder="Enter details..." />
+                </div>
+              </div>
+
+              <!-- Right Column -->
+              <div class="form-col">
+                <div class="form-group">
+                  <label class="form-label">Task Status</label>
+                  <select v-model="editedTask.status" class="form-select">
+                    <option value="In Progress">In Progress</option>
+                    <option value="Done">Done</option>
+                    <option value="Suspended">Suspended</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Document References</label>
+                  <div class="doc-links-list">
+                    <div
+                      v-for="(link, index) in editedTask.document_links"
+                      :key="index"
+                      class="doc-link-row"
+                    >
+                      <span class="doc-link-num">#{{ index + 1 }}</span>
+                      <input
+                        v-model="editedTask.document_links[index]"
+                        type="url"
+                        class="form-input form-input--sm"
+                        placeholder="https://sharepoint.com/..."
+                      />
+                      <button type="button" class="remove-link-btn" @click="removeDocumentLink(index)">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                      </button>
+                    </div>
+                    <button type="button" class="add-link-btn" @click="addDocumentLink">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+                      </svg>
+                      Add Reference Link
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button class="btn-cancel" @click="closeEditModal">Cancel</button>
+            <button class="btn-primary" @click="updateTask">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+              </svg>
+              Update Entry
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </Teleport>
+
   </div>
 </template>
 
@@ -226,32 +280,43 @@ const editedTask = ref({
 });
 
 const formatDate = (dateString) => {
-  if (!dateString) return 'Invalid Date';
+  if (!dateString) return '—';
   const date = new Date(dateString);
-  if (isNaN(date)) return 'Invalid Date';
-  const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-  return date.toLocaleDateString(undefined, options);
+  if (isNaN(date)) return '—';
+  return date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 };
 
 const shortenLink = (link) => {
-  if (!link) return null; // Handle null or undefined link
-  const url = new URL(link);
-  // Optional shortening logic based on pathname length
-  return `${url.hostname}${url.pathname.length > 10 ? '/...' : url.pathname}`;
+  if (!link) return null;
+  try {
+    const url = new URL(link);
+    return `${url.hostname}${url.pathname.length > 10 ? '/...' : url.pathname}`;
+  } catch {
+    return link;
+  }
 };
 
+const statusClass = (status) => {
+  if (status === 'Done') return 'status--done';
+  if (status === 'Suspended') return 'status--suspended';
+  return 'status--inprogress';
+};
+
+const taskSlaClass = (task) => {
+  if (task.status === 'Done') return '';
+  const hours = (new Date() - new Date(task.date_added)) / (1000 * 60 * 60);
+  if (hours >= 72) return 'sla--critical';
+  if (hours >= 48) return 'sla--warning';
+  if (hours >= 24) return 'sla--watch';
+  return '';
+};
 
 const editTask = async (task) => {
   try {
-    // Fetch the task details by ID
     const response = await getTaskService(task.id);
     if (response.status === 200) {
       const data = response.data;
-
       const predefinedTypes = ['CSW', 'Memo', 'MOA', 'Letter', 'MoM', 'Email'];
-
-
-      // Populate `editedTask` with the response data
       editedTask.value = {
         id: data.id,
         title: data.title,
@@ -261,17 +326,13 @@ const editTask = async (task) => {
         otherType: predefinedTypes.includes(data.type) ? '' : data.type,
         paps: data.paps,
         no_of_document: data.no_of_document,
-        document_links: data.document_links.map(linkObj => linkObj.document_link), // Handle array
-        link: data.link || '', // Optional fields
+        document_links: data.document_links.map(linkObj => linkObj.document_link),
+        link: data.link || '',
         hours_worked: data.hours_worked || 0,
         date_added: data.date_added || '',
         date_finished: data.date_finished || '',
       };
-
-      // Show the modal
       showEditModal.value = true;
-    } else {
-      console.error('Failed to fetch task details:', response);
     }
   } catch (error) {
     console.error('Error fetching task details:', error);
@@ -280,65 +341,23 @@ const editTask = async (task) => {
 
 const updateTask = async () => {
   try {
-    // Ensure the document_links array has the same number of items as no_of_document
     editedTask.value.document_links = editedTask.value.document_links.slice(0, editedTask.value.no_of_document);
-
-    // Format the document links for the payload
-    const formattedDocumentLinks = editedTask.value.document_links.map((link) => ({
-      document_link: link,
-    }));
-    // Prepare the payload for the API
-    const payload = {
-      ...editedTask.value,
-      document_links: formattedDocumentLinks,
-    };
-
-    // Determine final type for payload
+    const formattedDocumentLinks = editedTask.value.document_links.map((link) => ({ document_link: link }));
+    const payload = { ...editedTask.value, document_links: formattedDocumentLinks };
     const finalTaskType = editedTask.value.type === "Others" ? editedTask.value.otherType : editedTask.value.type;
     payload.type = finalTaskType;
-
     await updateTaskService(editedTask.value.id, payload);
     emit('updateTasks', editedTask.value);
     closeEditModal();
-    Swal.fire({
-      icon: 'success',
-      title: 'Task Updated Successfully!',
-      text: 'Your task has been updated successfully.',
-      showConfirmButton: false,
-      timer: 2000,
-    });
+    Swal.fire({ icon: 'success', title: 'Task Updated!', text: 'Your task has been updated successfully.', showConfirmButton: false, timer: 2000 });
   } catch (error) {
-    // console.error("Failed to update the task:", error);
-      Swal.fire({
-        icon: 'error',
-        title: 'Task Update Failed',
-        text: error,  // Show the error message from backend
-        showConfirmButton: false,
-        timer: 2000,
-      });
+    Swal.fire({ icon: 'error', title: 'Update Failed', text: String(error), showConfirmButton: false, timer: 2000 });
   }
 };
 
 const closeEditModal = () => {
   showEditModal.value = false;
   editedTask.value = {};
-};
-
-const taskBorderClass = (task) => {
-  const hoursSinceAdded = (new Date() - new Date(task.date_added)) / (1000 * 60 * 60);
-  let borderColor = 'border-transparent';
-  
-  if (task.status !== 'Done') {
-    if (hoursSinceAdded >= 72) {
-      borderColor = 'border-red-500';
-    } else if (hoursSinceAdded >= 48) {
-      borderColor = 'border-orange-500';
-    } else if (hoursSinceAdded >= 24) {
-      borderColor = 'border-yellow-500';
-    }
-  }
-  
-  return `border-4 ${borderColor}`;
 };
 
 function addDocumentLink() {
@@ -348,9 +367,488 @@ function addDocumentLink() {
 function removeDocumentLink(index) {
   editedTask.value.document_links.splice(index, 1);
 }
-
 </script>
 
 <style scoped>
-/* Additional styles if needed */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+.task-list-root {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+/* ── Banner ── */
+.tasks-banner {
+  background: linear-gradient(135deg, #eff6ff, #f0fdf4);
+  border: 1px solid #bfdbfe;
+  border-radius: 12px;
+  padding: 10px 16px;
+  margin-bottom: 16px;
+}
+.banner-inner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  color: #1d4ed8;
+  font-weight: 600;
+}
+.task-count-badge {
+  margin-left: auto;
+  background: #dbeafe;
+  color: #1d4ed8;
+  padding: 2px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* ── Task Grid ── */
+.tasks-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ── Task Card ── */
+.task-card {
+  display: flex;
+  background: #ffffff;
+  border-radius: 14px;
+  border: 1px solid #e8ecf4;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.04);
+  overflow: hidden;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+.task-card:hover {
+  box-shadow: 0 6px 24px rgba(15, 23, 42, 0.09);
+  transform: translateY(-1px);
+}
+
+/* SLA accent bar */
+.card-accent {
+  width: 4px;
+  background: #e2e8f0;
+  flex-shrink: 0;
+}
+.sla--watch .card-accent { background: #f59e0b; }
+.sla--warning .card-accent { background: #f97316; }
+.sla--critical .card-accent { background: #ef4444; }
+
+.card-body {
+  flex: 1;
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+/* ── Card Header ── */
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+.card-title-group {
+  flex: 1;
+  min-width: 0;
+}
+.card-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.3;
+  margin: 0 0 3px;
+}
+.card-description {
+  font-size: 12.5px;
+  color: #64748b;
+  line-height: 1.5;
+}
+.field-label {
+  font-weight: 600;
+  color: #94a3b8;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-right: 3px;
+}
+.card-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* ── Status Badge ── */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  border: 1px solid transparent;
+}
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.status--done { background: #f0fdf4; color: #16a34a; border-color: #bbf7d0; }
+.status--inprogress { background: #fffbeb; color: #d97706; border-color: #fde68a; }
+.status--suspended { background: #fff1f2; color: #e11d48; border-color: #fecdd3; }
+
+/* ── Edit Button ── */
+.edit-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  font-size: 11.5px;
+  font-weight: 600;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+.edit-btn:hover {
+  background: #eff6ff;
+  color: #2563eb;
+  border-color: #bfdbfe;
+}
+.edit-btn--disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+.edit-btn--disabled:hover {
+  background: #f8fafc;
+  color: #475569;
+  border-color: #e2e8f0;
+}
+
+/* ── Tags ── */
+.card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.tag--paps { background: #f0f9ff; color: #0369a1; border: 1px solid #bae6fd; }
+.tag--type { background: #faf5ff; color: #7c3aed; border: 1px solid #e9d5ff; }
+.tag--vol  { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+
+/* ── References ── */
+.card-references {
+  padding: 8px 10px;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid #f1f5f9;
+}
+.ref-list {
+  list-style: none;
+  padding: 0;
+  margin: 4px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.ref-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #2563eb;
+  font-size: 11.5px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.ref-link:hover { color: #1d4ed8; text-decoration: underline; }
+
+/* ── Card Footer ── */
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-top: 10px;
+  border-top: 1px solid #f1f5f9;
+}
+.meta-dates {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11.5px;
+  color: #94a3b8;
+}
+.meta-label { font-weight: 600; color: #64748b; }
+.meta-val { color: #475569; }
+
+.hours-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: linear-gradient(135deg, #eff6ff, #dbeafe);
+  color: #1d4ed8;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 11.5px;
+  font-weight: 700;
+  border: 1px solid #bfdbfe;
+}
+
+/* ── Empty State ── */
+.empty-state {
+  text-align: center;
+  padding: 56px 32px;
+  background: #ffffff;
+  border: 2px dashed #e2e8f0;
+  border-radius: 16px;
+}
+.empty-icon {
+  width: 64px;
+  height: 64px;
+  background: #f1f5f9;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+  color: #94a3b8;
+}
+.empty-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #334155;
+  margin: 0 0 6px;
+}
+.empty-sub {
+  font-size: 13px;
+  color: #94a3b8;
+}
+
+/* ── Modal ── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(4px);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+.modal-panel {
+  background: #ffffff;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 860px;
+  max-height: 90vh;
+  overflow-y: auto;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 24px 80px rgba(15, 23, 42, 0.18);
+}
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid #f1f5f9;
+  background: #fafbfe;
+  border-radius: 20px 20px 0 0;
+}
+.modal-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+}
+.modal-sub {
+  font-size: 12px;
+  color: #94a3b8;
+  margin: 2px 0 0;
+}
+.modal-close {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #64748b;
+  transition: all 0.15s;
+}
+.modal-close:hover { background: #fee2e2; color: #dc2626; border-color: #fecaca; }
+
+.modal-body {
+  padding: 20px 24px;
+}
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+@media (max-width: 640px) {
+  .form-grid { grid-template-columns: 1fr; }
+}
+.form-col {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.form-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #64748b;
+}
+.form-input,
+.form-select,
+.form-textarea {
+  width: 100%;
+  padding: 9px 13px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 13px;
+  font-family: inherit;
+  color: #1e293b;
+  background: #f8fafc;
+  outline: none;
+  transition: all 0.15s;
+  box-sizing: border-box;
+}
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+  border-color: #3b82f6;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+}
+.form-input--sm { padding: 7px 10px; font-size: 12px; }
+.form-textarea { resize: vertical; }
+
+.doc-links-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.doc-link-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.doc-link-num {
+  font-size: 11px;
+  font-weight: 700;
+  color: #3b82f6;
+  background: #eff6ff;
+  padding: 3px 7px;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+.remove-link-btn {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  border: 1px solid #fecaca;
+  background: #fff5f5;
+  color: #ef4444;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+.remove-link-btn:hover { background: #ef4444; color: white; }
+.add-link-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #2563eb;
+  background: #eff6ff;
+  border: 1px dashed #bfdbfe;
+  border-radius: 8px;
+  padding: 7px 12px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+}
+.add-link-btn:hover { background: #dbeafe; border-style: solid; }
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 24px 20px;
+  border-top: 1px solid #f1f5f9;
+}
+.btn-cancel {
+  padding: 9px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  color: #64748b;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+}
+.btn-cancel:hover { background: #f1f5f9; color: #1e293b; }
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 20px;
+  font-size: 13px;
+  font-weight: 700;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+  transition: all 0.2s ease;
+}
+.btn-primary:hover {
+  background: linear-gradient(135deg, #1d4ed8, #1e40af);
+  box-shadow: 0 6px 18px rgba(37, 99, 235, 0.45);
+  transform: translateY(-1px);
+}
 </style>
