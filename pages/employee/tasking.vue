@@ -84,7 +84,6 @@
       </div>
 
       <div class="sla-legend">
-        <span class="sla-label">SLA Status</span>
         <div class="sla-badges">
           <span class="sla-badge sla-badge--watch">
             <span class="sla-dot"></span>1 Day Pending
