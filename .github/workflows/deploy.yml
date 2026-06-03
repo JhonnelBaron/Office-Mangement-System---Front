@@ -53,4 +53,4 @@ jobs:
           # 4. I-run ang Rsync mula sa dist/ papunta sa public_html ng Hostinger mo
           rsync -avz --delete -e "ssh -p 65002 -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
           dist/ \
-          u782169281@77.37.78.239:/home/u782169281/domains/pink-dotterel-993276.hostingersite.com/public_html/
+          u782169281@77.37.78.239:/home/u782169281/domains/pink-dotterel-993276.hostingersite.com/public_html/deploy/
