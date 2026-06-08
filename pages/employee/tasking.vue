@@ -158,7 +158,7 @@
                 <div class="form-group">
                   <label class="form-label">Document Classification</label>
                   <select v-model="newTaskType" class="form-select">
-                    <option value="CSW">CSW — Complete Staff Work</option>
+                    <option value="CSW">CSW</option>
                     <option value="Memo">Memo</option>
                     <option value="MOA">MOA</option>
                     <option value="Letter">Letter</option>
@@ -268,7 +268,7 @@ const showModal = ref(false);
 const newTaskTitle = ref('');
 const newTaskDescription = ref('');
 const newTaskLink = ref('');
-const newTaskPaps = ref('Program');
+const newTaskPaps = ref('');
 const newTaskType = ref('CSW');
 const newTaskOtherType = ref('');
 const newTaskStatus = ref('Draft');
@@ -280,6 +280,7 @@ const isSubmitting = ref(false);
 const papsOptions = ref([
   "Administrative and Financial Support",
   "Devolution",
+  "Digitalization",
   "Disaster Response Management",
   "Field Visit",
   "Inter-Office Memorandum",
