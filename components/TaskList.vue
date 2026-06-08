@@ -155,15 +155,20 @@
                 <div class="form-group">
                   <label class="form-label">PAPs Category</label>
                   <select v-model="editedTask.paps" class="form-select">
-                    <option value="Program">Program</option>
-                    <option value="Activities">Activities</option>
-                    <option value="Projects">Projects</option>
-                    <option value="Routeslips">Routeslips</option>
+                      <option value="" disabled selected>-- Select PAPS --</option>
+                          
+                          <option 
+                            v-for="option in papsOptions" 
+                            :key="option" 
+                            :value="option"
+                          >
+                            {{ option }}
+                          </option>
                   </select>
                 </div>
 
                 <div class="form-group">
-                  <label class="form-label">Subject Heading / Task</label>
+                  <label class="form-label">Subject Heading</label>
                   <input v-model="editedTask.title" class="form-input" placeholder="Enter task title">
                 </div>
 
@@ -184,7 +189,7 @@
                 </div>
 
                 <div class="form-group">
-                  <label class="form-label">Description / Subject Details</label>
+                  <label class="form-label">Task Description / Subject Details</label>
                   <textarea v-model="editedTask.description" class="form-textarea" rows="3" placeholder="Enter details..." />
                 </div>
               </div>
@@ -239,7 +244,7 @@
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
               </svg>
-              Update Entry
+              Update
             </button>
           </div>
 
@@ -253,7 +258,9 @@
 <script setup>
 import { ref } from 'vue';
 import { getTask as getTaskService, updateTask as updateTaskService } from '@/services/taskService';
-import Swal from 'sweetalert2';
+import { useToast } from "vue-toastification";
+
+const toast = useToast();
 
 const props = defineProps({
   tasks: {
@@ -279,6 +286,36 @@ const editedTask = ref({
   date_finished: ''
 });
 
+const papsOptions = ref([
+  "Administrative and Financial Support",
+  "Devolution",
+  "Disaster Response Management",
+  "Field Visit",
+  "Inter-Office Memorandum",
+  "Legislative",
+  "Meetings",
+  "Mid-Year and Year-End Performance Review",
+  "Misroutes",
+  "Monitoring/Evaluation of TEST Operations",
+  "National Archives of the Philippines",
+  "National Conferences",
+  "Regional Reports",
+  "Request for Scholarship",
+  "Scholarship and TESD Operation-related Policies",
+  "Secretary's Directives",
+  "SIPTVETS",
+  "Special Clients under Presidential Directives",
+  "Strategic Performance Management System",
+  "Sustain/Maintain Partnerships",
+  "Technical and Administrative Assistance to ROPODOs",
+  "Technical Assistance to Internal Clients, Partners, and Stakeholders",
+  "TESDA Organizational Excellence Awards",
+  "TESDA Technology Institution (TTIs)",
+  "TESDA-BARMM",
+  "TESDA-DOLE Convergence",
+  "TTIs Advisory Councils (TACs)",
+  "Updating of National Records"
+]);
 const formatDate = (dateString) => {
   if (!dateString) return '—';
   const date = new Date(dateString);
@@ -349,9 +386,11 @@ const updateTask = async () => {
     await updateTaskService(editedTask.value.id, payload);
     emit('updateTasks', editedTask.value);
     closeEditModal();
-    Swal.fire({ icon: 'success', title: 'Task Updated!', text: 'Your task has been updated successfully.', showConfirmButton: false, timer: 2000 });
+    toast.success("Task successfully updated!");
   } catch (error) {
-    Swal.fire({ icon: 'error', title: 'Update Failed', text: String(error), showConfirmButton: false, timer: 2000 });
+    const errorMessage = error.response?.data?.message || error.message || String(error);
+    toast.error(errorMessage);
+    closeEditModal();
   }
 };
 
