@@ -175,7 +175,7 @@
                 <div class="form-group">
                   <label class="form-label">Document Classification</label>
                   <select v-model="editedTask.type" class="form-select">
-                    <option value="CSW">CSW — Complete Staff Work</option>
+                    <option value="CSW">CSW</option>
                     <option value="Memo">Memo</option>
                     <option value="MOA">MOA</option>
                     <option value="Letter">Letter</option>
@@ -289,6 +289,7 @@ const editedTask = ref({
 const papsOptions = ref([
   "Administrative and Financial Support",
   "Devolution",
+  "Digitalization",
   "Disaster Response Management",
   "Field Visit",
   "Inter-Office Memorandum",
