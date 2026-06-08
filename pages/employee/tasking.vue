@@ -133,10 +133,15 @@
                 <div class="form-group">
                   <label class="form-label">PAPs Category</label>
                   <select v-model="newTaskPaps" class="form-select">
-                    <option value="Program">Program</option>
-                    <option value="Activities">Activities</option>
-                    <option value="Projects">Projects</option>
-                    <option value="Routeslips">Routeslips</option>
+                    <option value="" disabled selected>-- Select PAPS --</option>
+                        
+                        <option 
+                          v-for="option in papsOptions" 
+                          :key="option" 
+                          :value="option"
+                        >
+                          {{ option }}
+                        </option>
                   </select>
                 </div>
 
@@ -167,7 +172,7 @@
                 </div>
 
                 <div class="form-group">
-                  <label class="form-label">Task Description / Action Taken</label>
+                  <label class="form-label">Task Description / Subject Details</label>
                   <textarea
                     v-model="newTaskDescription"
                     class="form-textarea"
@@ -232,7 +237,7 @@
                 <svg v-else class="spin" width="14" height="14" viewBox="0 0 24 24" fill="none">
                   <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" stroke-dasharray="40" stroke-dashoffset="10" stroke-linecap="round"/>
                 </svg>
-                <span>{{ isSubmitting ? 'Saving...' : 'Save Entry' }}</span>
+                <span>{{ isSubmitting ? 'Saving...' : 'Save' }}</span>
               </button>
             </div>
           </form>
@@ -249,7 +254,9 @@ import { ref, onMounted, onUnmounted, reactive, computed } from 'vue';
 import TaskList from '@/components/TaskList.vue';
 import ReportGenerator from '@/components/employee/ReportGenerator.vue';
 import { addTask as addTaskService, getTasks } from '@/services/taskService';
-import Swal from 'sweetalert2';
+import { useToast } from "vue-toastification";
+
+const toast = useToast();
 
 definePageMeta({ layout: 'employee' });
 
@@ -269,6 +276,37 @@ const newTaskOtherStatus = ref('');
 const newTaskNoOfDocuments = ref(0);
 const newTaskDocumentLinks = ref([]);
 const isSubmitting = ref(false);
+
+const papsOptions = ref([
+  "Administrative and Financial Support",
+  "Devolution",
+  "Disaster Response Management",
+  "Field Visit",
+  "Inter-Office Memorandum",
+  "Legislative",
+  "Meetings",
+  "Mid-Year and Year-End Performance Review",
+  "Misroutes",
+  "Monitoring/Evaluation of TEST Operations",
+  "National Archives of the Philippines",
+  "National Conferences",
+  "Regional Reports",
+  "Request for Scholarship",
+  "Scholarship and TESD Operation-related Policies",
+  "Secretary's Directives",
+  "SIPTVETS",
+  "Special Clients under Presidential Directives",
+  "Strategic Performance Management System",
+  "Sustain/Maintain Partnerships",
+  "Technical and Administrative Assistance to ROPODOs",
+  "Technical Assistance to Internal Clients, Partners, and Stakeholders",
+  "TESDA Organizational Excellence Awards",
+  "TESDA Technology Institution (TTIs)",
+  "TESDA-BARMM",
+  "TESDA-DOLE Convergence",
+  "TTIs Advisory Councils (TACs)",
+  "Updating of National Records"
+]);
 
 const getMonthName = (monthIndex) => {
   const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -381,7 +419,7 @@ const addTask = async () => {
   isSubmitting.value = true;
   try {
     await addTaskService(task);
-    Swal.fire({ icon: 'success', title: 'Task Added!', text: 'Your task has been logged successfully.', timer: 2000, showConfirmButton: false });
+    toast.success("Task added successfully!");
     resetTaskFields();
     await fetchTasks();
     closeModal();
@@ -396,7 +434,7 @@ const hasInProgressTask = computed(() => filteredTasks.value.some((task) => task
 
 const handleAddTaskClick = () => {
   if (hasInProgressTask.value) {
-    Swal.fire({ icon: "warning", title: "Ongoing Task", text: "Please finish your current in-progress task before adding a new one." });
+    toast.warning("Please settle your current in-progress item before initiating a new one.");
   } else {
     openModal();
   }

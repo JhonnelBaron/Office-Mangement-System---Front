@@ -58,6 +58,9 @@ importers:
       vue-router:
         specifier: latest
         version: 5.0.7(@vue/compiler-sfc@3.5.34)(pinia@3.0.4(typescript@5.7.2)(vue@3.5.34(typescript@5.7.2)))(vue@3.5.34(typescript@5.7.2))
+      vue-toastification:
+        specifier: 2.0.0-rc.5
+        version: 2.0.0-rc.5(vue@3.5.34(typescript@5.7.2))
       vue3-apexcharts:
         specifier: ^1.11.1
         version: 1.11.1(apexcharts@4.7.0)(vue@3.5.34(typescript@5.7.2))
@@ -4755,6 +4758,11 @@ packages:
         optional: true
       pinia:
         optional: true
+
+  vue-toastification@2.0.0-rc.5:
+    resolution: {integrity: sha512-q73e5jy6gucEO/U+P48hqX+/qyXDozAGmaGgLFm5tXX4wJBcVsnGp4e/iJqlm9xzHETYOilUuwOUje2Qg1JdwA==}
+    peerDependencies:
+      vue: ^3.0.2
 
   vue3-apexcharts@1.11.1:
     resolution: {integrity: sha512-MbN3vg8bMG19wc0Lm1HkeQvODgLm56DgpIxtNUO0xpf/JCzYWVGE4jzXp2JISzy2s3Kul1yOxNQUYsLvKQ5L9g==}
@@ -9850,6 +9858,10 @@ snapshots:
     optionalDependencies:
       '@vue/compiler-sfc': 3.5.34
       pinia: 3.0.4(typescript@5.7.2)(vue@3.5.34(typescript@5.7.2))
+
+  vue-toastification@2.0.0-rc.5(vue@3.5.34(typescript@5.7.2)):
+    dependencies:
+      vue: 3.5.34(typescript@5.7.2)
 
   vue3-apexcharts@1.11.1(apexcharts@4.7.0)(vue@3.5.34(typescript@5.7.2)):
     dependencies:
