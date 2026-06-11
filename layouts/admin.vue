@@ -1,45 +1,215 @@
-<!-- layouts/admin.vue -->
 <template>
-    <div class="min-h-screen flex">
-      <!-- Sidebar -->
-      <aside class="w-64 bg-gray-800 text-white min-h-screen fixed">
-        <div class="p-6">
-          <h2 class="text-xl font-bold mb-8">Admin Dashboard</h2>
-          <nav>
-            <ul>
-              <li class="mb-4">
-                <NuxtLink to="/admin" class="hover:bg-gray-700 block p-2 rounded">Dashboard</NuxtLink>
-              </li>
-              <li class="mb-4">
-                <NuxtLink to="/admin/users" class="hover:bg-gray-700 block p-2 rounded">Users</NuxtLink>
-              </li>
-              <!-- Add more links as needed -->
-            </ul>
-          </nav>
+  <div class="min-h-screen flex bg-slate-50 font-sans">
+
+    <aside class="sidebar w-64 bg-white h-screen fixed flex flex-col z-50 border-r border-slate-200/80">
+      <div class="px-5 py-4 flex-shrink-0">
+        <div class="profile-card relative flex items-center gap-3 p-3 rounded-xl bg-gradient-to-br from-blue-50 to-slate-50 border border-blue-100/60">
+
+          <div class="avatar-wrapper relative flex-shrink-0">
+            <div class="w-11 h-11 rounded-xl overflow-hidden ring-2 ring-blue-200/60 ring-offset-1 ring-offset-white">
+              <img
+                v-if="currentUser?.profile_image || currentUser?.avatar"
+                :src="currentUser?.profile_image || currentUser?.avatar"
+                :alt="`${currentUser?.first_name} ${currentUser?.last_name}`"
+                class="w-full h-full object-cover"
+              />
+              <div
+                v-else
+                class="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-500 to-blue-700 text-white font-bold text-sm select-none"
+              >
+                {{ userInitials }}
+              </div>
+            </div>
+            <span class="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-400 border-2 border-white"></span>
+          </div>
+
+          <div class="min-w-0 flex-1">
+            <p class="text-sm font-semibold text-slate-800 truncate leading-tight">
+              {{ currentUser?.first_name }} {{ currentUser?.last_name }}
+            </p>
+            <p class="text-[11px] text-blue-500 font-medium truncate leading-snug mt-0.5">
+              {{ currentUser?.position || 'Employee' }}
+            </p>
+          </div>
         </div>
-        <div class="p-4">
-        <button class="w-full p-2 bg-red-600 text-white rounded hover:bg-red-700 mb-0" @click="handleLogout">
+      </div>
+      
+      <div class="mx-5 h-px bg-slate-100 flex-shrink-0"></div>
+
+      <div class="flex-1 px-3 pb-4 relative z-30 flex flex-col">
+
+        <p class="px-2 mt-4 mb-2 text-[10px] font-semibold uppercase tracking-widest text-slate-400 flex-shrink-0">Menu</p>
+
+        <nav class="flex flex-col flex-1">
+          <ul class="space-y-0.5">
+            <li>
+              <NuxtLink
+                to="/admin"
+                class="nav-link group flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-150 text-slate-500 hover:text-blue-600 hover:bg-blue-50"
+                :class="{ '!text-slate-500 !bg-transparent font-normal opacity-60': isNotifOpen }"
+                active-class="nav-link--active !text-blue-700 !bg-blue-50 font-semibold"
+              >
+                <span class="nav-icon flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg transition-all duration-150 bg-slate-100 group-hover:bg-blue-100 text-slate-400 group-hover:text-blue-600">
+                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 22 21">
+                    <path d="M16.975 11H10V4.025a1 1 0 0 0-1.066-.998 8.5 8.5 0 1 0 9.039 9.039.999.999 0 0 0-1-1.066h.002Z"/>
+                    <path d="M12.5 0c-.157 0-.311.01-.565.027A1 1 0 0 0 11 1.02V10h8.975a1 1 0 0 0 1-.935c.013-.188.028-.374.028-.565A8.51 8.51 0 0 0 12.5 0Z"/>
+                  </svg>
+                </span>
+                <span class="text-sm">Dashboard</span>
+              </NuxtLink>
+            </li>
+            <li>
+              <NuxtLink
+                to="/admin/users"
+                class="nav-link group flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-150 text-slate-500 hover:text-blue-600 hover:bg-blue-50"
+                :class="{ '!text-slate-500 !bg-transparent font-normal opacity-60': isNotifOpen }"
+                active-class="nav-link--active !text-blue-700 !bg-blue-50 font-semibold"
+              >
+                <span class="nav-icon flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg transition-all duration-150 bg-slate-100 group-hover:bg-blue-100 text-slate-400 group-hover:text-blue-600">
+                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M14 2a3.963 3.963 0 0 0-1.4.267 6.439 6.439 0 0 1-1.331 6.638A4 4 0 1 0 14 2Zm1 9h-1.264A6.957 6.957 0 0 1 15 15v2a2.97 2.97 0 0 1-.184 1H19a1 1 0 0 0 1-1v-1a5.006 5.006 0 0 0-5-5ZM6.5 9a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9ZM8 10H5a5.006 5.006 0 0 0-5 5v2a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-2a5.006 5.006 0 0 0-5-5Z"/>
+                  </svg>
+                </span>
+                <span class="text-sm">Users</span>
+              </NuxtLink>
+            </li>
+
+            
+          </ul>
+        </nav>
+      </div>
+
+      <div class="px-4 py-4 border-t border-slate-100 bg-slate-50/50 flex-shrink-0 relative z-20">
+        <button
+          class="logout-btn w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-red-50 text-red-600 border border-red-100 font-semibold text-sm hover:bg-red-600 hover:text-white hover:border-red-600 transition-all duration-200 group"
+          @click="handleLogout"
+        >
+          <svg class="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+          </svg>
           Logout
         </button>
       </div>
-      </aside>
-  
-      <!-- Main Content Area -->
-      <main class="flex-1 bg-gray-100 p-8 ml-64">
-        <NuxtPage />
-      </main>
-    </div>
-  </template>
+
+    </aside>
+
+    <main class="flex-1 ml-64 p-8 overflow-y-auto min-h-screen">
+      <NuxtPage />
+    </main>
+
+  </div>
+</template>
 
 <script setup>
-import { logoutUser } from '@/services/authService'; // Import the logout function
+import { onMounted, ref, computed, watch } from 'vue'
+import { useRoute } from 'vue-router'
+import { logoutUser } from '@/services/authService'
+import { useNotificationStore } from '@/stores/notification'
+import { storeToRefs } from 'pinia'
+
+const route = useRoute()
+const notifStore = useNotificationStore()
+const { unreadCount } = storeToRefs(notifStore)
+
+// State para kontrolin kung kailan ipapakita ang active color sa Notification block
+const isNotifOpen = ref(false)
+
+const userCookie = useCookie('user')
+
+const currentUser = computed(() => {
+  const rawData = userCookie.value
+  if (!rawData) return null
+
+  try {
+    const decoded = typeof rawData === 'string' ? decodeURIComponent(rawData) : rawData
+    return typeof decoded === 'string' ? JSON.parse(decoded) : decoded
+  } catch (error) {
+    console.error("Failed to resolve user session profile within layout navigation:", error)
+    return null
+  }
+})
+
+const userInitials = computed(() => {
+  const first = currentUser.value?.first_name?.[0] ?? ''
+  const last = currentUser.value?.last_name?.[0] ?? ''
+  return (first + last).toUpperCase() || '?'
+})
+
+// Toggle function kapag pinindot ang notification block area
+const toggleNotifActive = () => {
+  isNotifOpen.value = !isNotifOpen.value
+}
+
+// Kapag lumipat ang user ng page gamit ang Dashboard o Tasks, kailangang patayin ang active style ng Notification automatically
+watch(() => route.path, () => {
+  isNotifOpen.value = false
+})
 
 const handleLogout = async () => {
-  await logoutUser(); // Call the logout function
-};
+  await logoutUser()
+}
+
+onMounted(() => {
+  const user = currentUser.value
+  if (user) {
+    const userId = user.id || user.user_id
+
+    if (userId) {
+      notifStore.fetchNotifications()
+      notifStore.listenForNotifications(userId)
+    }
+  }
+})
 </script>
-  
-  <style scoped>
-  /* Styling for the admin layout can be customized here */
-  </style>
-  
+
+<style scoped>
+/* ── Active nav link styles ── */
+.nav-link--active .nav-icon {
+  @apply bg-blue-100 text-blue-700;
+}
+
+.nav-link--active {
+  position: relative;
+}
+.nav-link--active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 60%;
+  border-radius: 0 3px 3px 0;
+  background: #2563eb;
+}
+
+/* ── 🔔 Forced Active States para sa Notification Kapag Bukas ── */
+.nav-link--forced-active {
+  position: relative;
+}
+.nav-link--forced-active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 60%;
+  border-radius: 0 3px 3px 0;
+  background: #2563eb;
+}
+
+/* Dito pinupwersa nating maging kulay asul ang icon sa loob ng Notification Bell component kapag active siya */
+.nav-link--forced-active deep .nav-icon,
+.nav-link--forced-active :deep(.nav-icon) {
+  @apply bg-blue-100 text-blue-700 !important;
+}
+
+.sidebar {
+  box-shadow: 1px 0 16px 0 rgba(148, 163, 184, 0.10);
+}
+
+.logout-btn:hover svg {
+  transform: translateX(2px);
+}
+</style>
